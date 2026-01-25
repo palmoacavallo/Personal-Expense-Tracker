@@ -2222,8 +2222,45 @@ async function syncMembersUp() {
     }
 }
 
-async function syncMembersDown()
- 
+async function syncMembersDown() {
+    const db = window._firestoreDb;
+    const { collection, getDocs, query, where } = window._firestoreFns;
+    if (!db) return;
+
+    const collRef = collection(db, 'families', currentFamilyId, 'members');
+
+    let q;
+    if (lastSyncAt) {
+        q = query(collRef, where('updatedAt', '>', lastSyncAt));
+    } else {
+        q = query(collRef);
+    }
+
+    const snap = await getDocs(q);
+    let changed = false;
+
+    snap.forEach(docSnap => {
+        const cloudM = docSnap.data();
+        const localIndex = appData.members.findIndex(m => m.id === cloudM.id);
+
+        if (localIndex === -1) {
+            appData.members.push(cloudM);
+            changed = true;
+        } else {
+            const localM = appData.members[localIndex];
+            if (!localM.updatedAt || localM.updatedAt < cloudM.updatedAt) {
+                appData.members[localIndex] = cloudM;
+                changed = true;
+            }
+        }
+    });
+
+    if (changed) {
+        saveDataToStorage();
+        renderFamilyMembers();
+    }
+}
+
 // ========== FIRESTORE SYNC CATEGORIES & SUBCATEGORIES ==========
 
 async function syncCategoriesUp() {
@@ -2321,6 +2358,7 @@ async function syncCategoriesDown() {
         populateAnalyticsCategories();
     }
 }
+
 // ========== FIRESTORE SYNC BUDGETS ==========
 
 async function syncBudgetsUp() {
@@ -2381,51 +2419,13 @@ async function syncBudgetsDown() {
     }
 }
 
-{
-    const db = window._firestoreDb;
-    const { collection, getDocs, query, where } = window._firestoreFns;
-    if (!db) return;
-
-    const collRef = collection(db, 'families', currentFamilyId, 'members');
-
-    let q;
-    if (lastSyncAt) {
-        q = query(collRef, where('updatedAt', '>', lastSyncAt));
-    } else {
-        q = query(collRef);
-    }
-
-    const snap = await getDocs(q);
-    let changed = false;
-
-    snap.forEach(docSnap => {
-        const cloudM = docSnap.data();
-        const localIndex = appData.members.findIndex(m => m.id === cloudM.id);
-
-        if (localIndex === -1) {
-            appData.members.push(cloudM);
-            changed = true;
-        } else {
-            const localM = appData.members[localIndex];
-            if (!localM.updatedAt || localM.updatedAt < cloudM.updatedAt) {
-                appData.members[localIndex] = cloudM;
-                changed = true;
-            }
-        }
-    });
-
-    if (changed) {
-        saveDataToStorage();
-        renderFamilyMembers();
-    }
-}
+// ========== FIRESTORE SYNC TRANSACTIONS ==========
 
 async function syncTransactionsUp() {
     const db = window._firestoreDb;
     const { collection, doc, setDoc } = window._firestoreFns;
     if (!db) return;
 
-    // per semplicità: invia tutte le transazioni locali (puoi ottimizzare più avanti)
     const collRef = collection(db, 'families', currentFamilyId, 'transactions');
 
     for (const t of appData.transactions) {
@@ -2453,7 +2453,6 @@ async function syncTransactionsDown() {
     if (lastSyncAt) {
         q = query(collRef, where('updatedAt', '>', lastSyncAt));
     } else {
-        // prima sync: prendi tutto
         q = query(collRef);
     }
 
@@ -2506,7 +2505,6 @@ async function syncWithCloud() {
         showSuccess('Errore durante la sincronizzazione (vedi console)');
     }
 }
-
         // ========== EXPORT ==========
         function exportToCSV() {
             const fromDate = document.getElementById('exportFromDate').value;
@@ -2555,4 +2553,5 @@ if ('serviceWorker' in navigator) {
 </script>
 </body>
 </html>
+
 
