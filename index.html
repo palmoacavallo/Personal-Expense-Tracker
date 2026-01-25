@@ -587,7 +587,10 @@
                     <div class="value" id="budgetRemaining">€ 0.00</div>
                 </div>
             </div>
-
+<div class="card">
+    <h2>Sincronizzazione Cloud</h2>
+    <button class="btn btn-primary btn-block" onclick="syncWithCloud()">Sincronizza ora</button>
+</div>
             <div class="card">
                 <h2>Utente corrente</h2>
                 <div class="form-group">
@@ -955,6 +958,28 @@
         </div>
     </div>
 
+<script type="module">
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
+import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-analytics.js";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+apiKey: "AIzaSyCg4-mz80Qhy_veYSw4mGeoQ4pEgxcLbk8",
+authDomain: "personal-expense-tracker-381f6.firebaseapp.com",
+projectId: "personal-expense-tracker-381f6",
+storageBucket: "personal-expense-tracker-381f6.firebasestorage.app",
+messagingSenderId: "1090304015275",
+appId: "1:1090304015275:web:ccec1199f75379f63870ee",
+measurementId: "G-7R6J8GTXG3"
+};
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+</script>
+
     <!-- LIBRERIE -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
 <script type="text/javascript" src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
@@ -971,6 +996,15 @@
         };
 
         let currentSessionUserId = null;
+// Config sync Firestore
+let currentFamilyId = localStorage.getItem('family_id') || 'default-family';
+let lastSyncAt = localStorage.getItem('family_lastSyncAt') || null;
+
+// helper rapido
+function setFamilyId(familyId) {
+    currentFamilyId = familyId;
+    localStorage.setItem('family_id', familyId);
+}
 const childGoal = {
     memberName: 'Figlio',          // deve coincidere con il nome nel tuo elenco membri
     categoryName: 'Snack',         // categoria di uscita da controllare
@@ -981,6 +1015,25 @@ const childGoal = {
         function initApp() {
             loadDataFromStorage();
             initializeFamilyData();
+async function initApp() {
+    loadDataFromStorage();
+    initializeFamilyData();
+    document.getElementById('expenseDate').valueAsDate = new Date();
+    document.getElementById('incomeDate').valueAsDate = new Date();
+    document.getElementById('analyticsMonth').valueAsDate = new Date();
+    document.getElementById('exportFromDate').valueAsDate = new Date();
+    document.getElementById('exportToDate').valueAsDate = new Date();
+    renderCategories();
+    populateAnalyticsCategories();
+    renderBudgetManagement();
+    updateDashboard();
+    setupTabNavigation();
+
+    // prova sync se online
+    if (navigator.onLine) {
+        syncWithCloud();
+    }
+}
             document.getElementById('expenseDate').valueAsDate = new Date();
             document.getElementById('incomeDate').valueAsDate = new Date();
             document.getElementById('analyticsMonth').valueAsDate = new Date();
@@ -2146,6 +2199,312 @@ function updateCategoryChart(transactions) {
         },
         options: { responsive: true, maintainAspectRatio: false }
     });
+}
+// ========== FIRESTORE SYNC ==========
+
+// ========== FIRESTORE SYNC MEMBERS ==========
+
+async function syncMembersUp() {
+    const db = window._firestoreDb;
+    const { collection, doc, setDoc } = window._firestoreFns;
+    if (!db) return;
+
+    const collRef = collection(db, 'families', currentFamilyId, 'members');
+
+    for (const m of appData.members) {
+        const docRef = doc(collRef, String(m.id));
+        const payload = {
+            ...m,
+            updatedAt: m.updatedAt || new Date().toISOString()
+        };
+        await setDoc(docRef, payload, { merge: true });
+        m.updatedAt = payload.updatedAt;
+    }
+}
+
+async function syncMembersDown()
+ 
+// ========== FIRESTORE SYNC CATEGORIES & SUBCATEGORIES ==========
+
+async function syncCategoriesUp() {
+    const db = window._firestoreDb;
+    const { collection, doc, setDoc } = window._firestoreFns;
+    if (!db) return;
+
+    const catsRef = collection(db, 'families', currentFamilyId, 'categories');
+    const subsRef = collection(db, 'families', currentFamilyId, 'subcategories');
+
+    for (const c of appData.categories) {
+        const docRef = doc(catsRef, String(c.id));
+        const payload = {
+            ...c,
+            updatedAt: c.updatedAt || new Date().toISOString()
+        };
+        await setDoc(docRef, payload, { merge: true });
+        c.updatedAt = payload.updatedAt;
+    }
+
+    for (const s of appData.subcategories) {
+        const docRef = doc(subsRef, String(s.id));
+        const payload = {
+            ...s,
+            updatedAt: s.updatedAt || new Date().toISOString()
+        };
+        await setDoc(docRef, payload, { merge: true });
+        s.updatedAt = payload.updatedAt;
+    }
+}
+
+async function syncCategoriesDown() {
+    const db = window._firestoreDb;
+    const { collection, getDocs, query, where } = window._firestoreFns;
+    if (!db) return;
+
+    const catsRef = collection(db, 'families', currentFamilyId, 'categories');
+    const subsRef = collection(db, 'families', currentFamilyId, 'subcategories');
+
+    // Categorie
+    let qCats;
+    if (lastSyncAt) {
+        qCats = query(catsRef, where('updatedAt', '>', lastSyncAt));
+    } else {
+        qCats = query(catsRef);
+    }
+    const snapCats = await getDocs(qCats);
+    let changed = false;
+
+    snapCats.forEach(docSnap => {
+        const cloudC = docSnap.data();
+        const localIndex = appData.categories.findIndex(c => c.id === cloudC.id);
+
+        if (localIndex === -1) {
+            appData.categories.push(cloudC);
+            changed = true;
+        } else {
+            const localC = appData.categories[localIndex];
+            if (!localC.updatedAt || localC.updatedAt < cloudC.updatedAt) {
+                appData.categories[localIndex] = cloudC;
+                changed = true;
+            }
+        }
+    });
+
+    // Sottocategorie
+    let qSubs;
+    if (lastSyncAt) {
+        qSubs = query(subsRef, where('updatedAt', '>', lastSyncAt));
+    } else {
+        qSubs = query(subsRef);
+    }
+    const snapSubs = await getDocs(qSubs);
+
+    snapSubs.forEach(docSnap => {
+        const cloudS = docSnap.data();
+        const localIndex = appData.subcategories.findIndex(s => s.id === cloudS.id);
+
+        if (localIndex === -1) {
+            appData.subcategories.push(cloudS);
+            changed = true;
+        } else {
+            const localS = appData.subcategories[localIndex];
+            if (!localS.updatedAt || localS.updatedAt < cloudS.updatedAt) {
+                appData.subcategories[localIndex] = cloudS;
+                changed = true;
+            }
+        }
+    });
+
+    if (changed) {
+        saveDataToStorage();
+        renderCategories();
+        updateCategoryOptions();
+        populateAnalyticsCategories();
+    }
+}
+// ========== FIRESTORE SYNC BUDGETS ==========
+
+async function syncBudgetsUp() {
+    const db = window._firestoreDb;
+    const { collection, doc, setDoc } = window._firestoreFns;
+    if (!db) return;
+
+    const collRef = collection(db, 'families', currentFamilyId, 'budgets');
+
+    for (const b of appData.budgets) {
+        const docRef = doc(collRef, String(b.id));
+        const payload = {
+            ...b,
+            updatedAt: b.updatedAt || new Date().toISOString()
+        };
+        await setDoc(docRef, payload, { merge: true });
+        b.updatedAt = payload.updatedAt;
+    }
+}
+
+async function syncBudgetsDown() {
+    const db = window._firestoreDb;
+    const { collection, getDocs, query, where } = window._firestoreFns;
+    if (!db) return;
+
+    const collRef = collection(db, 'families', currentFamilyId, 'budgets');
+
+    let q;
+    if (lastSyncAt) {
+        q = query(collRef, where('updatedAt', '>', lastSyncAt));
+    } else {
+        q = query(collRef);
+    }
+
+    const snap = await getDocs(q);
+    let changed = false;
+
+    snap.forEach(docSnap => {
+        const cloudB = docSnap.data();
+        const localIndex = appData.budgets.findIndex(b => b.id === cloudB.id);
+
+        if (localIndex === -1) {
+            appData.budgets.push(cloudB);
+            changed = true;
+        } else {
+            const localB = appData.budgets[localIndex];
+            if (!localB.updatedAt || localB.updatedAt < cloudB.updatedAt) {
+                appData.budgets[localIndex] = cloudB;
+                changed = true;
+            }
+        }
+    });
+
+    if (changed) {
+        saveDataToStorage();
+        renderBudgetManagement();
+        updateDashboard();
+    }
+}
+
+{
+    const db = window._firestoreDb;
+    const { collection, getDocs, query, where } = window._firestoreFns;
+    if (!db) return;
+
+    const collRef = collection(db, 'families', currentFamilyId, 'members');
+
+    let q;
+    if (lastSyncAt) {
+        q = query(collRef, where('updatedAt', '>', lastSyncAt));
+    } else {
+        q = query(collRef);
+    }
+
+    const snap = await getDocs(q);
+    let changed = false;
+
+    snap.forEach(docSnap => {
+        const cloudM = docSnap.data();
+        const localIndex = appData.members.findIndex(m => m.id === cloudM.id);
+
+        if (localIndex === -1) {
+            appData.members.push(cloudM);
+            changed = true;
+        } else {
+            const localM = appData.members[localIndex];
+            if (!localM.updatedAt || localM.updatedAt < cloudM.updatedAt) {
+                appData.members[localIndex] = cloudM;
+                changed = true;
+            }
+        }
+    });
+
+    if (changed) {
+        saveDataToStorage();
+        renderFamilyMembers();
+    }
+}
+
+async function syncTransactionsUp() {
+    const db = window._firestoreDb;
+    const { collection, doc, setDoc } = window._firestoreFns;
+    if (!db) return;
+
+    // per semplicità: invia tutte le transazioni locali (puoi ottimizzare più avanti)
+    const collRef = collection(db, 'families', currentFamilyId, 'transactions');
+
+    for (const t of appData.transactions) {
+        const docRef = doc(collRef, String(t.id));
+        const payload = {
+            ...t,
+            updatedAt: t.updatedAt || new Date().toISOString()
+        };
+        await setDoc(docRef, payload, { merge: true });
+        t.updatedAt = payload.updatedAt;
+    }
+
+    lastSyncAt = new Date().toISOString();
+    localStorage.setItem('family_lastSyncAt', lastSyncAt);
+}
+
+async function syncTransactionsDown() {
+    const db = window._firestoreDb;
+    const { collection, getDocs, query, where } = window._firestoreFns;
+    if (!db) return;
+
+    const collRef = collection(db, 'families', currentFamilyId, 'transactions');
+
+    let q;
+    if (lastSyncAt) {
+        q = query(collRef, where('updatedAt', '>', lastSyncAt));
+    } else {
+        // prima sync: prendi tutto
+        q = query(collRef);
+    }
+
+    const snap = await getDocs(q);
+    let changed = false;
+
+    snap.forEach(docSnap => {
+        const cloudT = docSnap.data();
+        const localIndex = appData.transactions.findIndex(t => t.id === cloudT.id);
+
+        if (localIndex === -1) {
+            appData.transactions.push(cloudT);
+            changed = true;
+        } else {
+            const localT = appData.transactions[localIndex];
+            if (!localT.updatedAt || localT.updatedAt < cloudT.updatedAt) {
+                appData.transactions[localIndex] = cloudT;
+                changed = true;
+            }
+        }
+    });
+
+    if (changed) {
+        saveDataToStorage();
+        updateDashboard();
+    }
+
+    lastSyncAt = new Date().toISOString();
+    localStorage.setItem('family_lastSyncAt', lastSyncAt);
+}
+
+// funzione comoda per avviare una sync completa
+async function syncWithCloud() {
+    try {
+        // UP: manda prima tutto in cloud (ordine: membri, categorie, sottocategorie, budget, transazioni)
+        await syncMembersUp();
+        await syncCategoriesUp();
+        await syncBudgetsUp();
+        await syncTransactionsUp();
+
+        // DOWN: poi ricevi le modifiche (stesso ordine logico)
+        await syncMembersDown();
+        await syncCategoriesDown();
+        await syncBudgetsDown();
+        await syncTransactionsDown();
+
+        showSuccess('Sincronizzazione completata');
+    } catch (e) {
+        console.error('Errore sync', e);
+        showSuccess('Errore durante la sincronizzazione (vedi console)');
+    }
 }
 
         // ========== EXPORT ==========
