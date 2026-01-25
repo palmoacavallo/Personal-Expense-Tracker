@@ -1,0 +1,2198 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0284c7">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Family Expense">
+<link rel="apple-touch-icon" href="icon-192.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Family Expense Tracker - Traccia le Tue Spese</title>
+    <style>
+        :root {
+            --color-primary: #0284c7;
+            --color-primary-hover: #0369a1;
+            --color-success: #16a34a;
+            --color-warning: #ea580c;
+            --color-danger: #dc2626;
+            --color-bg: #f8fafc;
+            --color-surface: #ffffff;
+            --color-text: #1e293b;
+            --color-text-secondary: #64748b;
+            --color-border: #e2e8f0;
+            --color-shadow: rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--color-bg);
+            color: var(--color-text);
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--color-primary), #0369a1);
+            color: white;
+            padding: 30px 20px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px var(--color-shadow);
+            text-align: center;
+        }
+
+        header h1 {
+            margin-bottom: 5px;
+            font-size: 2.5rem;
+        }
+
+        header p {
+            opacity: 0.9;
+            font-size: 0.95rem;
+        }
+
+        nav {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+            border-bottom: 2px solid var(--color-border);
+            padding-bottom: 15px;
+        }
+
+        .nav-btn {
+            padding: 10px 20px;
+            border: none;
+            background: transparent;
+            color: var(--color-text-secondary);
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .nav-btn.active {
+            color: var(--color-primary);
+            border-bottom-color: var(--color-primary);
+        }
+
+        .nav-btn:hover {
+            color: var(--color-primary);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .card {
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px var(--color-shadow);
+        }
+
+        .card h2 {
+            margin-bottom: 20px;
+            color: var(--color-text);
+            font-size: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: var(--color-text);
+            font-weight: 500;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            font-size: 1rem;
+            font-family: inherit;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.1);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background-color: var(--color-primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--color-primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3);
+        }
+
+        .btn-secondary {
+            background-color: #f1f5f9;
+            color: var(--color-text);
+            border: 1px solid var(--color-border);
+        }
+
+        .btn-secondary:hover {
+            background-color: #e2e8f0;
+        }
+
+        .btn-danger {
+            background-color: var(--color-danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #b91c1c;
+        }
+
+        .btn-success {
+            background-color: var(--color-success);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background-color: #15803d;
+        }
+
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 0.85rem;
+        }
+
+        .btn-block {
+            width: 100%;
+            margin-top: 15px;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .stat-box {
+            background: linear-gradient(135deg, var(--color-primary), #0369a1);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 4px 6px var(--color-shadow);
+        }
+
+        .stat-box h3 {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-box .value {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+
+        .alert {
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            border-left: 4px solid;
+        }
+
+        .alert-success {
+            background-color: #f0fdf4;
+            color: #15803d;
+            border-color: var(--color-success);
+        }
+
+        .alert-warning {
+            background-color: #fef3c7;
+            color: #92400e;
+            border-color: var(--color-warning);
+        }
+
+        .alert-danger {
+            background-color: #fef2f2;
+            color: #991b1b;
+            border-color: var(--color-danger);
+        }
+
+        .alert-info {
+            background-color: #eff6ff;
+            color: #0c4a6e;
+            border-color: var(--color-primary);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th {
+            background-color: #f1f5f9;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            color: var(--color-text);
+            border-bottom: 2px solid var(--color-border);
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        tr:hover {
+            background-color: #f8fafc;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .badge-category {
+            background-color: #dbeafe;
+            color: #0c4a6e;
+        }
+
+        .badge-income {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+
+        .badge-expense {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+
+        .expense-item {
+            background: var(--color-surface);
+            padding: 15px;
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .expense-info {
+            flex: 1;
+        }
+
+        .expense-amount {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--color-primary);
+        }
+
+        .expense-amount.expense {
+            color: var(--color-danger);
+        }
+
+        .expense-amount.income {
+            color: var(--color-success);
+        }
+
+        .expense-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--color-border);
+            padding-bottom: 15px;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            color: var(--color-text);
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--color-text-secondary);
+        }
+
+        .close-modal:hover {
+            color: var(--color-text);
+        }
+
+        canvas {
+            max-height: 400px;
+            margin-bottom: 20px;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin-bottom: 20px;
+        }
+
+        .no-data {
+            text-align: center;
+            color: var(--color-text-secondary);
+            padding: 40px 20px;
+        }
+
+        .success-message {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--color-success);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px var(--color-shadow);
+            animation: slideIn 0.3s ease;
+            z-index: 2000;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .tab-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.8rem;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+
+            nav {
+                justify-content: flex-start;
+                overflow-x: auto;
+            }
+
+            .stat-box {
+                flex: 1;
+                min-width: 150px;
+            }
+
+            table {
+                font-size: 0.9rem;
+            }
+
+            .expense-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(2, 132, 199, 0.1);
+            border-radius: 50%;
+            border-top-color: var(--color-primary);
+            animation: spin 1s ease-in-out infinite;
+        }
+	@media (max-width: 768px) {
+    .form-row {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .btn-block {
+        font-size: 1rem;
+        padding: 14px 20px;
+    }
+
+    input[type="number"],
+    input[type="date"],
+    select,
+    textarea {
+        font-size: 1rem;
+    }
+
+    /* card più compatte su mobile */
+    .card {
+        padding: 18px;
+    }
+
+    /* dashboard: numeri ancora ben visibili ma non enormi */
+    .stat-box .value {
+        font-size: 1.6rem;
+    }
+}
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .deep-link-btn {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background-color: var(--color-primary);
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .deep-link-btn:hover {
+            background-color: var(--color-primary-hover);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>💰 Family Expense Tracker</h1>
+            <p>Gestisci le spese della famiglia con facilità</p>
+        </header>
+
+        <nav>
+            <button class="nav-btn active" data-tab="dashboard">Dashboard</button>
+            <button class="nav-btn" data-tab="add-expense">Aggiungi Uscita</button>
+            <button class="nav-btn" data-tab="add-income">Aggiungi Entrata</button>
+            <button class="nav-btn" data-tab="categories">Categorie</button>
+            <button class="nav-btn" data-tab="budget">Budget</button>
+            <button class="nav-btn" data-tab="analytics">Analitiche</button>
+            <button class="nav-btn" data-tab="export">Esporta</button>
+        </nav>
+
+        <!-- DASHBOARD TAB -->
+        <div id="dashboard" class="tab-content active">
+            <div class="grid-2">
+                <div class="stat-box">
+                    <h3>Entrate</h3>
+                    <div class="value" id="totalIncome">€ 0.00</div>
+                </div>
+                <div class="stat-box">
+                    <h3>Uscite</h3>
+                    <div class="value" id="totalExpense">€ 0.00</div>
+                </div>
+                <div class="stat-box">
+                    <h3>Saldo</h3>
+                    <div class="value" id="totalBalance">€ 0.00</div>
+                </div>
+                <div class="stat-box">
+                    <h3>Budget Rimanente</h3>
+                    <div class="value" id="budgetRemaining">€ 0.00</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Utente corrente</h2>
+                <div class="form-group">
+                    <label for="currentUser">Seleziona utente della sessione:</label>
+                    <select id="currentUser" onchange="setCurrentSessionUser()">
+                        <option value="">Nessuno</option>
+                    </select>
+                </div>
+                <div class="alert alert-info" id="currentUserInfo">
+                    Nessun utente selezionato: le nuove transazioni richiederanno la scelta manuale del membro.
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Avvisi Budget</h2>
+                <div id="budgetAlerts"></div>
+            </div>
+
+		<div class="card">
+    <h2>Insight sul mese corrente</h2>
+    <div id="insightsBox" class="alert alert-info">
+        Nessun dato sufficiente per generare insight. Aggiungi qualche transazione.
+    </div>
+</div>
+<div class="card">
+    <h2>Obiettivi del mese (Figlio)</h2>
+    <div id="goalsBox" class="alert alert-info">
+        Nessun obiettivo definito. Puoi usarlo per motivare il controllo delle spese dei figli.
+    </div>
+</div>
+
+            <div class="card">
+                <h2>Transazioni Recenti</h2>
+                <div id="recentTransactions"></div>
+            </div>
+
+            <div style="text-align: center; margin-top: 30px;">
+                <a href="myexpense://add-expense" class="deep-link-btn">
+                    📱 Apri da Wallet
+                </a>
+            </div>
+        </div>
+<div class="card">
+    <h2>Insight sul mese corrente</h2>
+    <div id="insightsBox" class="alert alert-info">
+        Nessun dato sufficiente per generare insight. Aggiungi qualche transazione.
+    </div>
+</div>
+
+        <!-- ADD EXPENSE TAB -->
+        <div id="add-expense" class="tab-content">
+            <div class="card">
+                <h2>Aggiungi Uscita</h2>
+                <form id="expenseForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="expenseAmount">Importo (€):</label>
+                            <input type="number" id="expenseAmount" step="0.01" min="0" required placeholder="0.00">
+                        </div>
+                        <div class="form-group">
+                            <label for="expenseDate">Data:</label>
+                            <input type="date" id="expenseDate" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="expenseCategory">Categoria:</label>
+                            <select id="expenseCategory" required onchange="updateSubcategoryOptions('expense')">
+                                <option value="">Seleziona categoria</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="expenseSubcategory">Sottocategoria:</label>
+                            <select id="expenseSubcategory" required>
+                                <option value="">Seleziona sottocategoria</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="expenseMember">Membro Famiglia:</label>
+                            <select id="expenseMember" required>
+                                <option value="">Seleziona membro</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="expenseDescription">Descrizione (opzionale):</label>
+                        <textarea id="expenseDescription" rows="3" placeholder="Aggiungi una nota..."></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-block">Salva Uscita</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- ADD INCOME TAB -->
+        <div id="add-income" class="tab-content">
+            <div class="card">
+                <h2>Aggiungi Entrata</h2>
+                <form id="incomeForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="incomeAmount">Importo (€):</label>
+                            <input type="number" id="incomeAmount" step="0.01" min="0" required placeholder="0.00">
+                        </div>
+                        <div class="form-group">
+                            <label for="incomeDate">Data:</label>
+                            <input type="date" id="incomeDate" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="incomeCategory">Categoria:</label>
+                            <select id="incomeCategory" required onchange="updateSubcategoryOptions('income')">
+                                <option value="">Seleziona categoria</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="incomeSubcategory">Sottocategoria:</label>
+                            <select id="incomeSubcategory" required>
+                                <option value="">Seleziona sottocategoria</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="incomeMember">Membro Famiglia:</label>
+                            <select id="incomeMember" required>
+                                <option value="">Seleziona membro</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="incomeDescription">Descrizione (opzionale):</label>
+                        <textarea id="incomeDescription" rows="3" placeholder="Aggiungi una nota..."></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-block">Salva Entrata</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- CATEGORIES TAB -->
+        <div id="categories" class="tab-content">
+            <div class="card">
+                <h2>Carica Categorie di Uscita da Excel</h2>
+                <div class="alert alert-info">
+                    <strong>Formato Excel:</strong> Colonna A = Categoria, Colonna B = Sottocategoria
+                </div>
+                <div class="form-group">
+                    <label for="excelFile">Seleziona file Excel (.xlsx) per uscite:</label>
+                    <input type="file" id="excelFile" accept=".xlsx" onchange="handleExcelUpload(event)">
+                </div>
+                <button class="btn btn-primary" onclick="parseExcelFile()">Carica Categorie Uscita</button>
+                <div id="excelStatus"></div>
+            </div>
+
+            <div class="card">
+                <h2>Carica Categorie di Entrata da Excel</h2>
+                <div class="alert alert-info">
+                    <strong>Formato Excel:</strong> Colonna A = Categoria entrata, Colonna B = Sottocategoria
+                </div>
+                <div class="form-group">
+                    <label for="excelFileIncome">Seleziona file Excel (.xlsx) per entrate:</label>
+                    <input type="file" id="excelFileIncome" accept=".xlsx" onchange="handleExcelUploadIncome(event)">
+                </div>
+                <button class="btn btn-primary" onclick="parseExcelFileIncome()">Carica Categorie Entrata</button>
+                <div id="excelStatusIncome"></div>
+            </div>
+
+            <div class="card">
+                <h2>Categorie Correnti</h2>
+                <div id="categoriesList"></div>
+            </div>
+        </div>
+
+        <!-- BUDGET TAB -->
+       <div id="budget" class="tab-content">
+    <div class="card">
+        <h2>Gestione Budget</h2>
+        <div id="budgetManagement"></div>
+        <button class="btn btn-primary btn-block" onclick="openBudgetModal()">Aggiungi/Modifica Budget</button>
+    </div>
+
+    <div class="card" style="margin-top:20px;">
+        <h2>Carica Budget Uscite da Excel</h2>
+        <div class="alert alert-info">
+            <strong>Formato Excel:</strong> Colonna A = Categoria (uscita), Colonna B = Mese (1-12 o Gen, Feb, ...), Colonna C = Importo budget (€).
+        </div>
+        <div class="form-group">
+            <label for="budgetExcelFile">Seleziona file Excel (.xlsx):</label>
+            <input type="file" id="budgetExcelFile" accept=".xlsx" onchange="handleBudgetExcelUpload(event)">
+        </div>
+        <button class="btn btn-primary" onclick="parseBudgetExcelFile()">Carica Budget Uscite</button>
+        <div id="budgetExcelStatus"></div>
+    </div>
+</div>
+
+        <!-- ANALYTICS TAB -->
+        <div id="analytics" class="tab-content">
+            <div class="card">
+                <h2>Analitiche Spese e Entrate</h2>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="analyticsMonth">Mese:</label>
+                        <input type="month" id="analyticsMonth">
+                    </div>
+                    <div class="form-group">
+                        <label for="analyticsCategory">Categoria:</label>
+                        <select id="analyticsCategory">
+                            <option value="">Tutte le categorie</option>
+                        </select>
+                    </div>
+                </div>
+                <button class="btn btn-primary" onclick="updateAnalytics()">Aggiorna Grafici</button>
+            </div>
+
+            <div class="card">
+                <h2>Spese per Categoria</h2>
+                <div class="chart-container">
+                    <canvas id="categoryChart"></canvas>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Spese per Sottocategoria</h2>
+                <div class="chart-container">
+                    <canvas id="subcategoryChart"></canvas>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Andamento Mensile Spese</h2>
+                <div class="chart-container">
+                    <canvas id="monthlyChart"></canvas>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Spese per Utente (mese selezionato)</h2>
+                <div class="chart-container">
+                    <canvas id="userChart"></canvas>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Budget vs Spese (cumulato annuale)</h2>
+                <div class="chart-container">
+                    <canvas id="budgetChart"></canvas>
+                </div>
+            </div>
+        </div>
+<div class="card">
+    <h2>Spese per Categoria</h2>
+    <div id="categoryChartStatus" class="alert alert-info">Caricamento grafico...</div>
+    <div class="chart-container">
+        <canvas id="categoryChart"></canvas>
+    </div>
+</div>
+<div class="card">
+    <h2>Spese per Sottocategoria</h2>
+    <div id="subcategoryChartStatus" class="alert alert-info">Caricamento grafico...</div>
+    <div class="chart-container">
+        <canvas id="subcategoryChart"></canvas>
+    </div>
+</div>
+<div class="card">
+    <h2>Andamento Mensile Spese</h2>
+    <div id="monthlyChartStatus" class="alert alert-info">Caricamento grafico...</div>
+    <div class="chart-container">
+        <canvas id="monthlyChart"></canvas>
+    </div>
+</div>
+<div class="card">
+    <h2>Spese per Utente (mese selezionato)</h2>
+    <div id="userChartStatus" class="alert alert-info">Caricamento grafico...</div>
+    <div class="chart-container">
+        <canvas id="userChart"></canvas>
+    </div>
+</div>
+<div class="card">
+    <h2>Budget vs Spese (cumulato annuale)</h2>
+    <div id="budgetChartStatus" class="alert alert-info">Caricamento grafico...</div>
+    <div class="chart-container">
+        <canvas id="budgetChart"></canvas>
+    </div>
+</div>
+
+        <!-- EXPORT TAB -->
+        <div id="export" class="tab-content">
+            <div class="card">
+                <h2>Esporta Dati</h2>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="exportFromDate">Data inizio:</label>
+                        <input type="date" id="exportFromDate">
+                    </div>
+                    <div class="form-group">
+                        <label for="exportToDate">Data fine:</label>
+                        <input type="date" id="exportToDate">
+                    </div>
+                </div>
+                <button class="btn btn-success btn-block" onclick="exportToCSV()">Scarica CSV</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- BUDGET MODAL -->
+    <div id="budgetModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Aggiungi/Modifica Budget</h2>
+                <button class="close-modal" onclick="closeBudgetModal()">×</button>
+            </div>
+            <form id="budgetForm">
+                <div class="form-group">
+                    <label for="budgetCategory">Categoria:</label>
+                    <select id="budgetCategory" required onchange="updateBudgetSubcategories()">
+                        <option value="">Seleziona categoria</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="budgetSubcategory">Sottocategoria:</label>
+                    <select id="budgetSubcategory">
+                        <option value="">Tutte le sottocategorie</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Budget mensile (€) da Gennaio a Dicembre:</label>
+                    <table style="width:100%; border-collapse:collapse; font-size:0.9rem;">
+                        <tr>
+                            <th>Gen</th><th>Feb</th><th>Mar</th><th>Apr</th><th>Mag</th><th>Giu</th>
+                        </tr>
+                        <tr>
+                            <td><input type="number" id="budgetMonth01" step="0.01" min="0" style="width:100%;"></td>
+                            <td><input type="number" id="budgetMonth02" step="0.01" min="0" style="width:100%;"></td>
+                            <td><input type="number" id="budgetMonth03" step="0.01" min="0" style="width:100%;"></td>
+                            <td><input type="number" id="budgetMonth04" step="0.01" min="0" style="width:100%;"></td>
+                            <td><input type="number" id="budgetMonth05" step="0.01" min="0" style="width:100%;"></td>
+                            <td><input type="number" id="budgetMonth06" step="0.01" min="0" style="width:100%;"></td>
+                        </tr>
+                        <tr>
+                            <th>Lug</th><th>Ago</th><th>Set</th><th>Ott</th><th>Nov</th><th>Dic</th>
+                        </tr>
+                        <tr>
+                            <td><input type="number" id="budgetMonth07" step="0.01" min="0" style="width:100%;"></td>
+                            <td><input type="number" id="budgetMonth08" step="0.01" min="0" style="width:100%;"></td>
+                            <td><input type="number" id="budgetMonth09" step="0.01" min="0" style="width:100%;"></td>
+                            <td><input type="number" id="budgetMonth10" step="0.01" min="0" style="width:100%;"></td>
+                            <td><input type="number" id="budgetMonth11" step="0.01" min="0" style="width:100%;"></td>
+                            <td><input type="number" id="budgetMonth12" step="0.01" min="0" style="width:100%;"></td>
+                        </tr>
+                    </table>
+                    <small style="color:#64748b;">Lascia vuoto un mese se non vuoi impostare un budget per quel mese.</small>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">Salva Budget</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- LIBRERIE -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+<script type="text/javascript" src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+
+    <script>
+        // ========== DATA MANAGEMENT ==========
+        let appData = {
+            families: [],
+            members: [],
+            categories: [],
+            subcategories: [],
+            transactions: [],
+            budgets: [] // { id, categoryId, subcategoryId, name, monthly: { "01": 100, ... } }
+        };
+
+        let currentSessionUserId = null;
+const childGoal = {
+    memberName: 'Figlio',          // deve coincidere con il nome nel tuo elenco membri
+    categoryName: 'Snack',         // categoria di uscita da controllare
+    monthlyLimit: 100               // € al mese
+};
+
+
+        function initApp() {
+            loadDataFromStorage();
+            initializeFamilyData();
+            document.getElementById('expenseDate').valueAsDate = new Date();
+            document.getElementById('incomeDate').valueAsDate = new Date();
+            document.getElementById('analyticsMonth').valueAsDate = new Date();
+            document.getElementById('exportFromDate').valueAsDate = new Date();
+            document.getElementById('exportToDate').valueAsDate = new Date();
+            renderCategories();
+	updateCategoryOptions();
+            populateAnalyticsCategories();
+            renderBudgetManagement();
+            updateDashboard();
+            setupTabNavigation();
+        }
+
+        function loadDataFromStorage() {
+            const stored = localStorage.getItem('expenseTrackerData');
+            if (stored) {
+                appData = JSON.parse(stored);
+                // compatibilità vecchia versione: se esiste budget.amount/period, convertilo in monthly
+                appData.budgets = appData.budgets.map(b => {
+                    if (!b.monthly && b.amount) {
+                        const monthly = {};
+                        const m = new Date().toISOString().slice(5,7);
+                        monthly[m] = b.amount;
+                        return { id: b.id, categoryId: b.categoryId, subcategoryId: b.subcategoryId || null, name: b.name, monthly };
+                    }
+                    return b;
+                });
+            }
+        }
+
+        function saveDataToStorage() {
+            localStorage.setItem('expenseTrackerData', JSON.stringify(appData));
+        }
+
+        function initializeFamilyData() {
+            if (appData.families.length === 0) {
+                appData.families.push({ id: 1, name: 'Mia Famiglia' });
+                appData.members.push({ id: 1, familyId: 1, name: 'Papà' });
+                appData.members.push({ id: 2, familyId: 1, name: 'Mamma' });
+                appData.members.push({ id: 3, familyId: 1, name: 'Figlio' });
+                saveDataToStorage();
+            }
+            renderFamilyMembers();
+        }
+
+        // ========== UI FUNCTIONS ==========
+        function setupTabNavigation() {
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const tabName = e.target.dataset.tab;
+                    showTab(tabName);
+                });
+            });
+        }
+
+        function showTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(tabName).classList.add('active');
+            document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+
+            if (tabName === 'analytics') {
+                setTimeout(() => updateAnalytics(), 100);
+            }
+        }
+
+        function showSuccess(message) {
+            const div = document.createElement('div');
+            div.className = 'success-message';
+            div.textContent = message;
+            document.body.appendChild(div);
+            setTimeout(() => div.remove(), 3000);
+        }
+
+        // ========== FAMILY MEMBERS ==========
+        function renderFamilyMembers() {
+            const expenseSelect = document.getElementById('expenseMember');
+            const incomeSelect = document.getElementById('incomeMember');
+            const sessionSelect = document.getElementById('currentUser');
+
+            [expenseSelect, incomeSelect].forEach(select => {
+                select.innerHTML = '<option value="">Seleziona membro</option>';
+            });
+
+            sessionSelect.innerHTML = '<option value="">Nessuno</option>';
+
+            appData.members.forEach(member => {
+                const opt1 = document.createElement('option');
+                opt1.value = member.id;
+                opt1.textContent = member.name;
+                expenseSelect.appendChild(opt1);
+
+                const opt2 = document.createElement('option');
+                opt2.value = member.id;
+                opt2.textContent = member.name;
+                incomeSelect.appendChild(opt2);
+
+                const opt3 = document.createElement('option');
+                opt3.value = member.id;
+                opt3.textContent = member.name;
+                sessionSelect.appendChild(opt3);
+            });
+        }
+
+        function setCurrentSessionUser() {
+            const select = document.getElementById('currentUser');
+            currentSessionUserId = select.value ? parseInt(select.value) : null;
+            const info = document.getElementById('currentUserInfo');
+            if (currentSessionUserId) {
+                const member = appData.members.find(m => m.id === currentSessionUserId);
+                info.textContent = `Utente selezionato: ${member?.name}. Le nuove transazioni useranno questo utente di default.`;
+            } else {
+                info.textContent = 'Nessun utente selezionato: le nuove transazioni richiederanno la scelta manuale del membro.';
+            }
+        }
+
+        // ========== CATEGORIES MANAGEMENT ==========
+        function updateCategoryOptions() {
+            const expenseCat = document.getElementById('expenseCategory');
+            const incomeCat = document.getElementById('incomeCategory');
+
+            expenseCat.innerHTML = '<option value="">Seleziona categoria</option>';
+            incomeCat.innerHTML = '<option value="">Seleziona categoria</option>';
+
+            const expenseCats = appData.categories.filter(cat => cat.type === 'expense');
+            const incomeCats = appData.categories.filter(cat => cat.type === 'income');
+
+            expenseCats.forEach(cat => {
+                const option = document.createElement('option');
+                option.value = cat.id;
+                option.textContent = cat.name;
+                expenseCat.appendChild(option);
+            });
+
+            incomeCats.forEach(cat => {
+                const option = document.createElement('option');
+                option.value = cat.id;
+                option.textContent = cat.name;
+                incomeCat.appendChild(option);
+            });
+
+            populateAnalyticsCategories();
+        }
+
+        function updateSubcategoryOptions(type) {
+            const categorySelect = type === 'expense'
+                ? document.getElementById('expenseCategory')
+                : document.getElementById('incomeCategory');
+            const subcategorySelect = type === 'expense'
+                ? document.getElementById('expenseSubcategory')
+                : document.getElementById('incomeSubcategory');
+
+            const categoryId = parseInt(categorySelect.value);
+            subcategorySelect.innerHTML = '<option value="">Seleziona sottocategoria</option>';
+
+            const filtered = appData.subcategories.filter(sub => sub.categoryId === categoryId);
+            filtered.forEach(sub => {
+                const option = document.createElement('option');
+                option.value = sub.id;
+                option.textContent = sub.name;
+                subcategorySelect.appendChild(option);
+            });
+        }
+
+        function renderCategories() {
+            const container = document.getElementById('categoriesList');
+            if (appData.categories.length === 0) {
+                container.innerHTML = '<p class="no-data">Nessuna categoria caricata. Carica un file Excel.</p>';
+                return;
+            }
+
+            let html = '<table><thead><tr><th>Categoria</th><th>Tipo</th><th>Sottocategorie</th></tr></thead><tbody>';
+            appData.categories.forEach(cat => {
+                const subs = appData.subcategories.filter(s => s.categoryId === cat.id);
+                html += `<tr>
+                    <td>${cat.name}</td>
+                    <td><span class="badge ${cat.type === 'expense' ? 'badge-expense' : 'badge-income'}">${cat.type === 'expense' ? 'Uscita' : 'Entrata'}</span></td>
+                    <td>${subs.map(s => s.name).join(', ')}</td>
+                </tr>`;
+            });
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        }
+
+        function populateAnalyticsCategories() {
+            const analyticsCat = document.getElementById('analyticsCategory');
+            if (!analyticsCat) return;
+            analyticsCat.innerHTML = '<option value="">Tutte le categorie</option>';
+            appData.categories.forEach(cat => {
+                const opt = document.createElement('option');
+                opt.value = cat.id;
+                opt.textContent = `${cat.name} (${cat.type === 'income' ? 'Entrata' : 'Uscita'})`;
+                analyticsCat.appendChild(opt);
+            });
+        }
+
+        // ========== EXCEL UPLOAD (USCITE) ==========
+        let excelFile = null;
+
+        function handleExcelUpload(event) {
+            excelFile = event.target.files[0];
+            const statusDiv = document.getElementById('excelStatus');
+            if (excelFile) {
+                statusDiv.innerHTML = `<div class="alert alert-success">File selezionato: ${excelFile.name}</div>`;
+            }
+        }
+
+        function parseExcelFile() {
+            if (!excelFile) {
+                alert('Seleziona un file Excel per le uscite');
+                return;
+            }
+
+            if (typeof XLSX === 'undefined') {
+                document.getElementById('excelStatus').innerHTML = '<div class="alert alert-danger">Errore: libreria XLSX non caricata. Controlla la connessione o il CDN.</div>';
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+                    const rows = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+
+                    // reset solo categorie di tipo expense
+                    appData.categories = appData.categories.filter(c => c.type !== 'expense');
+                    appData.subcategories = appData.subcategories.filter(s => {
+                        const cat = appData.categories.find(c => c.id === s.categoryId);
+                        return cat && cat.type !== 'expense';
+                    });
+
+                    let categoryId = appData.categories.length ? Math.max(...appData.categories.map(c => c.id)) + 1 : 1;
+                    let subcategoryId = appData.subcategories.length ? Math.max(...appData.subcategories.map(s => s.id)) + 1 : 1;
+
+                    rows.forEach((row, idx) => {
+                        if (idx === 0 || !row[0]) return;
+                        const categoryName = row[0]?.toString().trim();
+                        const subcategoryName = row[1]?.toString().trim();
+
+                        const existingCat = appData.categories.find(c => c.name === categoryName && c.type === 'expense');
+                        let catId;
+
+                        if (existingCat) {
+                            catId = existingCat.id;
+                        } else {
+                            catId = categoryId++;
+                            appData.categories.push({ id: catId, name: categoryName, type: 'expense' });
+                        }
+
+                        if (subcategoryName) {
+                            appData.subcategories.push({
+                                id: subcategoryId++,
+                                categoryId: catId,
+                                name: subcategoryName
+                            });
+                        }
+                    });
+
+                    saveDataToStorage();
+                    renderCategories();
+                    updateCategoryOptions();
+                    document.getElementById('excelStatus').innerHTML = '<div class="alert alert-success">✓ Categorie uscita caricate con successo!</div>';
+                    showSuccess('Categorie uscita caricate con successo');
+                } catch (error) {
+                    document.getElementById('excelStatus').innerHTML = `<div class="alert alert-danger">Errore nel parsing: ${error.message}</div>`;
+                }
+            };
+            reader.readAsArrayBuffer(excelFile);
+        }
+
+        // ========== EXCEL UPLOAD (ENTRATE) ==========
+        let excelFileIncome = null;
+
+        function handleExcelUploadIncome(event) {
+            excelFileIncome = event.target.files[0];
+            const statusDiv = document.getElementById('excelStatusIncome');
+            if (excelFileIncome) {
+                statusDiv.innerHTML = `<div class="alert alert-success">File selezionato: ${excelFileIncome.name}</div>`;
+            }
+        }
+
+        function parseExcelFileIncome() {
+            if (!excelFileIncome) {
+                alert('Seleziona un file Excel per le entrate');
+                return;
+            }
+            if (typeof XLSX === 'undefined') {
+                document.getElementById('excelStatusIncome').innerHTML = '<div class="alert alert-danger">Errore: libreria XLSX non caricata.</div>';
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+                    const rows = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+
+                    // reset solo categorie di tipo income
+                    appData.categories = appData.categories.filter(c => c.type !== 'income');
+                    appData.subcategories = appData.subcategories.filter(s => {
+                        const cat = appData.categories.find(c => c.id === s.categoryId);
+                        return cat && cat.type !== 'income';
+                    });
+
+                    let categoryId = appData.categories.length ? Math.max(...appData.categories.map(c => c.id)) + 1 : 1;
+                    let subcategoryId = appData.subcategories.length ? Math.max(...appData.subcategories.map(s => s.id)) + 1 : 1;
+
+                    rows.forEach((row, idx) => {
+                        if (idx === 0 || !row[0]) return;
+                        const categoryName = row[0]?.toString().trim();
+                        const subcategoryName = row[1]?.toString().trim();
+
+                        const existingCat = appData.categories.find(c => c.name === categoryName && c.type === 'income');
+                        let catId;
+
+                        if (existingCat) {
+                            catId = existingCat.id;
+                        } else {
+                            catId = categoryId++;
+                            appData.categories.push({ id: catId, name: categoryName, type: 'income' });
+                        }
+
+                        if (subcategoryName) {
+                            appData.subcategories.push({
+                                id: subcategoryId++,
+                                categoryId: catId,
+                                name: subcategoryName
+                            });
+                        }
+                    });
+
+                    saveDataToStorage();
+                    renderCategories();
+                    updateCategoryOptions();
+                    document.getElementById('excelStatusIncome').innerHTML = '<div class="alert alert-success">✓ Categorie entrata caricate con successo!</div>';
+                    showSuccess('Categorie entrata caricate con successo');
+                } catch (error) {
+                    document.getElementById('excelStatusIncome').innerHTML = `<div class="alert alert-danger">Errore nel parsing: ${error.message}</div>`;
+                }
+            };
+            reader.readAsArrayBuffer(excelFileIncome);
+        }
+
+// ========== EXCEL UPLOAD (BUDGET) ==========
+let budgetExcelFile = null;
+function handleBudgetExcelUpload(event) {
+    budgetExcelFile = event.target.files[0];
+    const statusDiv = document.getElementById('budgetExcelStatus');
+    if (budgetExcelFile) {
+        statusDiv.innerHTML = `<div class="alert alert-success">File selezionato: ${budgetExcelFile.name}</div>`;
+    }
+}
+function parseBudgetExcelFile() {
+    if (!budgetExcelFile) {
+        alert('Seleziona un file Excel per il budget uscite');
+        return;
+    }
+    if (typeof XLSX === 'undefined') {
+        document.getElementById('budgetExcelStatus').innerHTML =
+            '<div class="alert alert-danger">Errore: libreria XLSX non caricata. Controlla la connessione o il CDN.</div>';
+        return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        try {
+            const data = new Uint8Array(e.target.result);
+            const workbook = XLSX.read(data, { type: 'array' });
+            const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+            const rows = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+
+            // Formato: riga 0 intestazioni
+            // Col A = Categoria, B = Sottocategoria, C = Mese, D = Importo
+            const monthMap = {
+                '1':'01','01':'01','gen':'01','gennaio':'01',
+                '2':'02','02':'02','feb':'02','febbraio':'02',
+                '3':'03','03':'03','mar':'03','marzo':'03',
+                '4':'04','04':'04','apr':'04','aprile':'04',
+                '5':'05','05':'05','mag':'05','maggio':'05',
+                '6':'06','06':'06','giu':'06','giugno':'06',
+                '7':'07','07':'07','lug':'07','luglio':'07',
+                '8':'08','08':'08','ago':'08','agosto':'08',
+                '9':'09','09':'09','set':'09','settembre':'09',
+                '10':'10','ott':'10','ottobre':'10',
+                '11':'11','nov':'11','novembre':'11',
+                '12':'12','dic':'12','dicembre':'12'
+            };
+
+            rows.forEach((row, idx) => {
+                if (idx === 0) return; // salta intestazione
+                if (!row[0] || !row[2] || !row[3]) return; // cat, mese, importo obbligatori
+
+                const categoryName = row[0].toString().trim();
+                const subcategoryName = row[1] ? row[1].toString().trim() : '';
+                let monthRaw = row[2].toString().trim().toLowerCase();
+                const amountRaw = parseFloat(row[3]);
+
+                if (isNaN(amountRaw)) return;
+
+                const monthKey = monthMap[monthRaw] || monthMap[String(monthRaw)] || null;
+                if (!monthKey) return;
+
+                // Trova categoria di tipo "expense"
+                const category = appData.categories.find(
+                    c => c.name === categoryName && c.type === 'expense'
+                );
+                if (!category) {
+                    // Categoria non trovata: ignoriamo
+                    return;
+                }
+
+                // Trova sottocategoria (se specificata)
+                let subcategoryId = null;
+                if (subcategoryName) {
+                    const sub = appData.subcategories.find(
+                        s => s.categoryId === category.id && s.name === subcategoryName
+                    );
+                    if (!sub) {
+                        // Se non esiste, puoi decidere se crearla oppure ignorare la riga.
+                        // Qui la ignoro per sicurezza:
+                        return;
+                    }
+                    subcategoryId = sub.id;
+                }
+
+                // Cerca budget per categoria + (eventuale) sottocategoria
+                let budget = appData.budgets.find(b =>
+                    b.categoryId === category.id &&
+                    ((subcategoryId && b.subcategoryId === subcategoryId) ||
+                     (!subcategoryId && !b.subcategoryId))
+                );
+
+                if (!budget) {
+                    budget = {
+                        id: Date.now() + Math.random(),
+                        categoryId: category.id,
+                        subcategoryId: subcategoryId || null,
+                        name: category.name + (subcategoryId ? ' - ' + subcategoryName : ''),
+                        monthly: {}
+                    };
+                    appData.budgets.push(budget);
+                }
+
+                budget.monthly = budget.monthly || {};
+                budget.monthly[monthKey] = amountRaw;
+            });
+
+            saveDataToStorage();
+            renderBudgetManagement();
+            updateDashboard();
+            document.getElementById('budgetExcelStatus').innerHTML =
+                '<div class="alert alert-success">✓ Budget uscite (categorie e sottocategorie) caricato con successo!</div>';
+            showSuccess('Budget uscite caricato con successo');
+        } catch (error) {
+            document.getElementById('budgetExcelStatus').innerHTML =
+                `<div class="alert alert-danger">Errore nel parsing del budget: ${error.message}</div>`;
+        }
+    };
+    reader.readAsArrayBuffer(budgetExcelFile);
+}
+
+        // ========== TRANSACTIONS ==========
+        document.getElementById('expenseForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            const memberId = currentSessionUserId || parseInt(document.getElementById('expenseMember').value);
+
+            const transaction = {
+                id: Date.now(),
+                type: 'expense',
+                amount: parseFloat(document.getElementById('expenseAmount').value),
+                categoryId: parseInt(document.getElementById('expenseCategory').value),
+                subcategoryId: parseInt(document.getElementById('expenseSubcategory').value),
+                date: document.getElementById('expenseDate').value,
+                memberId: memberId,
+                description: document.getElementById('expenseDescription').value,
+                createdAt: new Date().toISOString()
+            };
+
+            appData.transactions.push(transaction);
+            saveDataToStorage();
+            updateDashboard();
+            document.getElementById('expenseForm').reset();
+            document.getElementById('expenseDate').valueAsDate = new Date();
+            showSuccess('Uscita aggiunta con successo');
+        });
+
+        document.getElementById('incomeForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            const memberId = currentSessionUserId || parseInt(document.getElementById('incomeMember').value);
+
+            const transaction = {
+                id: Date.now(),
+                type: 'income',
+                amount: parseFloat(document.getElementById('incomeAmount').value),
+                categoryId: parseInt(document.getElementById('incomeCategory').value),
+                subcategoryId: parseInt(document.getElementById('incomeSubcategory').value),
+                date: document.getElementById('incomeDate').value,
+                memberId: memberId,
+                description: document.getElementById('incomeDescription').value,
+                createdAt: new Date().toISOString()
+            };
+
+            appData.transactions.push(transaction);
+            saveDataToStorage();
+            updateDashboard();
+            document.getElementById('incomeForm').reset();
+            document.getElementById('incomeDate').valueAsDate = new Date();
+            showSuccess('Entrata aggiunta con successo');
+        });
+
+        // ========== DASHBOARD ==========
+        function updateDashboard() {
+            const currentMonth = new Date().toISOString().slice(0, 7); // yyyy-mm
+            const currentMonthKey = currentMonth.slice(5, 7); // "01".."12"
+            const monthTransactions = appData.transactions.filter(t => t.date.startsWith(currentMonth));
+
+            const totalIncome = monthTransactions
+                .filter(t => t.type === 'income')
+                .reduce((sum, t) => sum + t.amount, 0);
+
+            const totalExpense = monthTransactions
+                .filter(t => t.type === 'expense')
+                .reduce((sum, t) => sum + t.amount, 0);
+
+            const balance = totalIncome - totalExpense;
+
+            const budgetSpent = appData.budgets.reduce((sum, b) => {
+                const relevant = monthTransactions.filter(t => {
+                    if (b.subcategoryId && t.subcategoryId !== b.subcategoryId) return false;
+                    if (!b.subcategoryId && t.categoryId !== b.categoryId) return false;
+                    return t.type === 'expense';
+                });
+                return sum + relevant.reduce((s, t) => s + t.amount, 0);
+            }, 0);
+
+            const totalBudgetForMonth = appData.budgets.reduce((sum, b) => {
+                const monthlyAmount = b.monthly && b.monthly[currentMonthKey] ? b.monthly[currentMonthKey] : 0;
+                return sum + monthlyAmount;
+            }, 0);
+
+            const budgetRemaining = totalBudgetForMonth - budgetSpent;
+
+            document.getElementById('totalIncome').textContent = `€ ${totalIncome.toFixed(2)}`;
+            document.getElementById('totalExpense').textContent = `€ ${totalExpense.toFixed(2)}`;
+            document.getElementById('totalBalance').textContent = `€ ${balance.toFixed(2)}`;
+            document.getElementById('budgetRemaining').textContent = `€ ${Math.max(0, budgetRemaining).toFixed(2)}`;
+
+               renderBudgetAlerts();
+    renderRecentTransactions();
+    updateInsights();
+    updateGoals();
+}
+function updateInsights() {
+    const box = document.getElementById('insightsBox');
+    if (!box) return;
+
+    const today = new Date();
+    const currentMonth = today.toISOString().slice(0, 7); // yyyy-mm
+    const currentYear = today.getFullYear().toString();
+
+    const monthTransactions = appData.transactions.filter(t => t.date.startsWith(currentMonth));
+    if (monthTransactions.length === 0) {
+        box.className = 'alert alert-info';
+        box.textContent = 'Nessun dato sufficiente per generare insight. Aggiungi qualche transazione.';
+        return;
+    }
+
+    // 1) Spesa principale del mese
+    const expenseByCategory = {};
+    monthTransactions.filter(t => t.type === 'expense').forEach(t => {
+        const cat = appData.categories.find(c => c.id === t.categoryId);
+        const name = cat?.name || 'Altro';
+        expenseByCategory[name] = (expenseByCategory[name] || 0) + t.amount;
+    });
+    const topCategoryEntry = Object.entries(expenseByCategory)
+        .sort((a, b) => b[1] - a[1])[0];
+
+    // 2) Confronto con media ultimi 3 mesi sulla stessa categoria
+    let trendText = '';
+    if (topCategoryEntry) {
+        const [topCatName, topCatValue] = topCategoryEntry;
+        const last3MonthsExpenses = [];
+        for (let i = 1; i <= 3; i++) {
+            const d = new Date(today);
+            d.setMonth(d.getMonth() - i);
+            const ym = d.toISOString().slice(0, 7);
+            const val = appData.transactions
+                .filter(t => t.date.startsWith(ym) && t.type === 'expense')
+                .filter(t => {
+                    const cat = appData.categories.find(c => c.id === t.categoryId);
+                    return (cat?.name || 'Altro') === topCatName;
+                })
+                .reduce((sum, t) => sum + t.amount, 0);
+            last3MonthsExpenses.push(val);
+        }
+        const avgLast3 = last3MonthsExpenses.length
+            ? last3MonthsExpenses.reduce((a, b) => a + b, 0) / last3MonthsExpenses.length
+            : 0;
+
+        if (avgLast3 > 0) {
+            const diff = topCatValue - avgLast3;
+            const perc = (diff / avgLast3) * 100;
+            if (Math.abs(perc) < 10) {
+                trendText = `Stai spendendo su ${topCatName} in linea con la media degli ultimi 3 mesi.`;
+            } else if (perc > 0) {
+                trendText = `Questo mese hai speso circa ${perc.toFixed(0)}% in più in ${topCatName} rispetto alla media degli ultimi 3 mesi.`;
+            } else {
+                trendText = `Questo mese hai ridotto le spese in ${topCatName} di circa ${Math.abs(perc).toFixed(0)}% rispetto alla media degli ultimi 3 mesi.`;
+            }
+        }
+    }
+
+    // 3) Utente più “virtuoso” rispetto alle spese annuali
+    const yearTransactions = appData.transactions.filter(t => t.date.startsWith(currentYear) && t.type === 'expense');
+    const expenseByMember = {};
+
+    yearTransactions.forEach(t => {
+        const member = appData.members.find(m => m.id === t.memberId);
+        const name = member?.name || 'Altro';
+        expenseByMember[name] = (expenseByMember[name] || 0) + t.amount;
+    });
+
+    let virtuousText = '';
+    if (Object.keys(expenseByMember).length > 0) {
+        const totalExpenses = Object.values(expenseByMember).reduce((a, b) => a + b, 0);
+        const avgPerMember = totalExpenses / Object.keys(expenseByMember).length;
+
+        const ratios = Object.entries(expenseByMember)
+            .map(([name, val]) => ({ name, ratio: val / avgPerMember }));
+        ratios.sort((a, b) => a.ratio - b.ratio); // più basso = più virtuoso
+
+        const best = ratios[0];
+        if (best) {
+            virtuousText = `${best.name} ha speso meno della media degli altri membri quest’anno.`;
+        }
+    }
+
+    const parts = [];
+    if (topCategoryEntry) {
+        const [topCatName, topCatValue] = topCategoryEntry;
+        parts.push(`La categoria dove stai spendendo di più questo mese è ${topCatName} (circa € ${topCatValue.toFixed(2)}).`);
+    }
+    if (trendText) parts.push(trendText);
+    if (virtuousText) parts.push(virtuousText);
+
+    if (parts.length === 0) {
+        box.className = 'alert alert-info';
+        box.textContent = 'Continua a registrare le spese per vedere suggerimenti personalizzati.';
+    } else {
+        box.className = 'alert alert-info';
+        box.innerHTML = parts.join('<br>');
+    }
+}
+function updateGoals() {
+    const box = document.getElementById('goalsBox');
+    if (!box || !childGoal) return;
+
+    const currentMonth = new Date().toISOString().slice(0, 7);
+
+    const child = appData.members.find(m => m.name === childGoal.memberName);
+    const cat = appData.categories.find(c => c.name === childGoal.categoryName && c.type === 'expense');
+
+    if (!child || !cat) {
+        box.className = 'alert alert-info';
+        box.textContent = 'Configura un membro e una categoria valida per usare gli obiettivi.';
+        return;
+    }
+
+    const spent = appData.transactions
+        .filter(t => t.date.startsWith(currentMonth) && t.type === 'expense')
+        .filter(t => t.memberId === child.id && t.categoryId === cat.id)
+        .reduce((sum, t) => sum + t.amount, 0);
+
+    const limit = childGoal.monthlyLimit;
+    const perc = (spent / limit) * 100;
+
+    if (spent === 0) {
+        box.className = 'alert alert-info';
+        box.textContent = `${child.name} non ha ancora spese in ${cat.name} questo mese. Obiettivo: restare sotto € ${limit.toFixed(2)}.`;
+    } else if (perc < 80) {
+        box.className = 'alert alert-success';
+        box.textContent = `${child.name} ha speso € ${spent.toFixed(2)} in ${cat.name} su un obiettivo di € ${limit.toFixed(2)}. Ottimo andamento!`;
+    } else if (perc <= 100) {
+        box.className = 'alert alert-warning';
+        box.textContent = `${child.name} è vicino al limite in ${cat.name}: € ${spent.toFixed(2)} su € ${limit.toFixed(2)}. Mancano ancora pochi euro all’obiettivo.`;
+    } else {
+        box.className = 'alert alert-danger';
+        box.textContent = `${child.name} ha superato l’obiettivo in ${cat.name}: € ${spent.toFixed(2)} su € ${limit.toFixed(2)}. Parlatene insieme per migliorare il prossimo mese.`;
+    }
+}
+
+        function renderBudgetAlerts() {
+            const container = document.getElementById('budgetAlerts');
+            const currentMonth = new Date().toISOString().slice(0, 7);
+            const currentMonthKey = currentMonth.slice(5, 7);
+            const monthTransactions = appData.transactions.filter(t => t.date.startsWith(currentMonth));
+
+            let alerts = [];
+            appData.budgets.forEach(budget => {
+                const budgetAmount = budget.monthly && budget.monthly[currentMonthKey]
+                    ? budget.monthly[currentMonthKey]
+                    : 0;
+
+                if (!budgetAmount) {
+                    return; // nessun budget definito per questo mese
+                }
+
+                const relevant = monthTransactions.filter(t => {
+                    if (budget.subcategoryId && t.subcategoryId !== budget.subcategoryId) return false;
+                    if (!budget.subcategoryId && t.categoryId !== budget.categoryId) return false;
+                    return t.type === 'expense';
+                });
+
+                const spent = relevant.reduce((sum, t) => sum + t.amount, 0);
+                const percentage = (spent / budgetAmount) * 100;
+
+                if (percentage >= 100) {
+                    alerts.push({
+                        level: 'danger',
+                        message: `Budget superato (${currentMonthKey}): ${budget.name} (€${spent.toFixed(2)} / €${budgetAmount.toFixed(2)})`
+                    });
+                } else if (percentage >= 80) {
+                    alerts.push({
+                        level: 'warning',
+                        message: `Attenzione (${currentMonthKey}): ${budget.name} (${percentage.toFixed(0)}% utilizzato)`
+                    });
+                }
+            });
+
+            if (alerts.length === 0) {
+                container.innerHTML = '<div class="alert alert-success">✓ Tutti i budget mensili sono in ordine</div>';
+            } else {
+                container.innerHTML = alerts.map(a => `<div class="alert alert-${a.level}">${a.message}</div>`).join('');
+            }
+        }
+
+        function renderRecentTransactions() {
+            const container = document.getElementById('recentTransactions');
+            const recent = appData.transactions.slice().reverse().slice(0, 10);
+
+            if (recent.length === 0) {
+                container.innerHTML = '<p class="no-data">Nessuna transazione registrata</p>';
+                return;
+            }
+
+            let html = '';
+            recent.forEach(t => {
+                const cat = appData.categories.find(c => c.id === t.categoryId);
+                const member = appData.members.find(m => m.id === t.memberId);
+                html += `<div class="expense-item">
+                    <div class="expense-info">
+                        <strong>${cat?.name || 'N/A'}</strong><br>
+                        <small>${member?.name || 'N/A'} • ${t.date}</small>
+                    </div>
+                    <div class="expense-amount ${t.type}">${t.type === 'income' ? '+' : '-'} € ${t.amount.toFixed(2)}</div>
+                </div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        // ========== BUDGET MANAGEMENT ==========
+        function openBudgetModal() {
+            document.getElementById('budgetModal').classList.add('show');
+            const categorySelect = document.getElementById('budgetCategory');
+            categorySelect.innerHTML = '<option value="">Seleziona categoria</option>';
+            appData.categories.forEach(cat => {
+                const option = document.createElement('option');
+                option.value = cat.id;
+                option.textContent = cat.name;
+                categorySelect.appendChild(option);
+            });
+
+            ['01','02','03','04','05','06','07','08','09','10','11','12'].forEach(m => {
+                const el = document.getElementById('budgetMonth' + m);
+                if (el) el.value = '';
+            });
+        }
+
+        function closeBudgetModal() {
+            document.getElementById('budgetModal').classList.remove('show');
+            document.getElementById('budgetForm').reset();
+        }
+
+        function updateBudgetSubcategories() {
+            const categorySelect = document.getElementById('budgetCategory');
+            const categoryId = parseInt(categorySelect.value);
+            const subcategorySelect = document.getElementById('budgetSubcategory');
+            subcategorySelect.innerHTML = '<option value="">Tutte le sottocategorie</option>';
+
+            const filtered = appData.subcategories.filter(sub => sub.categoryId === categoryId);
+            filtered.forEach(sub => {
+                const option = document.createElement('option');
+                option.value = sub.id;
+                option.textContent = sub.name;
+                subcategorySelect.appendChild(option);
+            });
+        }
+
+        document.getElementById('budgetForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            const categoryId = parseInt(document.getElementById('budgetCategory').value);
+            const subcategoryId = document.getElementById('budgetSubcategory').value ? parseInt(document.getElementById('budgetSubcategory').value) : null;
+            const category = appData.categories.find(c => c.id === categoryId);
+
+            const monthly = {};
+            const months = ['01','02','03','04','05','06','07','08','09','10','11','12'];
+            months.forEach(m => {
+                const val = document.getElementById('budgetMonth' + m).value;
+                if (val && !isNaN(parseFloat(val))) {
+                    monthly[m] = parseFloat(val);
+                }
+            });
+
+            const budget = {
+                id: Date.now(),
+                categoryId,
+                subcategoryId,
+                name: category.name,
+                monthly
+            };
+
+            appData.budgets.push(budget);
+            saveDataToStorage();
+            closeBudgetModal();
+            renderBudgetManagement();
+            updateDashboard();
+            showSuccess('Budget aggiunto con successo');
+        });
+
+        function renderBudgetManagement() {
+            const container = document.getElementById('budgetManagement');
+            if (appData.budgets.length === 0) {
+                container.innerHTML = '<p class="no-data">Nessun budget configurato</p>';
+                return;
+            }
+
+            let html = '<table><thead><tr><th>Categoria</th><th>Sottocategoria</th><th>Budget mensile (Gen–Dic)</th><th>Azioni</th></tr></thead><tbody>';
+            appData.budgets.forEach(budget => {
+                const subName = budget.subcategoryId
+                    ? (appData.subcategories.find(s => s.id === budget.subcategoryId)?.name || '')
+                    : 'Tutte';
+
+                const monthsOrder = ['01','02','03','04','05','06','07','08','09','10','11','12'];
+                const monthLabels = ['Gen','Feb','Mar','Apr','Mag','Giu','Lug','Ago','Set','Ott','Nov','Dic'];
+
+                const monthStr = monthsOrder.map((m, idx) => {
+                    const val = budget.monthly && budget.monthly[m] ? budget.monthly[m].toFixed(2) : '-';
+                    return `${monthLabels[idx]}: ${val}`;
+                }).join('<br>');
+
+                html += `<tr>
+                    <td>${budget.name}</td>
+                    <td>${subName}</td>
+                    <td>${monthStr}</td>
+                    <td><button class="btn btn-danger btn-small" onclick="deleteBudget(${budget.id})">Elimina</button></td>
+                </tr>`;
+            });
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        }
+
+        function deleteBudget(budgetId) {
+            appData.budgets = appData.budgets.filter(b => b.id !== budgetId);
+            saveDataToStorage();
+            renderBudgetManagement();
+            updateDashboard();
+        }
+
+        // ========== ANALYTICS ==========
+        let categoryChart = null;
+        let subcategoryChart = null;
+        let monthlyChart = null;
+        let userChart = null;
+        let budgetChart = null;
+
+        function updateAnalytics() {
+            const month = document.getElementById('analyticsMonth').value;
+            const selectedCategory = document.getElementById('analyticsCategory').value;
+
+            let filtered = appData.transactions.filter(t => {
+                const tMonth = t.date.slice(0, 7);
+                if (month && tMonth !== month) return false;
+                if (selectedCategory && t.categoryId !== parseInt(selectedCategory)) return false;
+                return true;
+            });
+
+            updateCategoryChart(filtered);
+            updateSubcategoryChart(filtered);
+            updateMonthlyChart();
+            updateUserChart(filtered);
+            updateBudgetChart();
+        }
+
+function updateCategoryChart(transactions) {
+    const status = document.getElementById('categoryChartStatus');
+    const categoryData = {};
+    transactions.filter(t => t.type === 'expense').forEach(t => {
+        const cat = appData.categories.find(c => c.id === t.categoryId);
+        const name = cat?.name || 'Altro';
+        categoryData[name] = (categoryData[name] || 0) + t.amount;
+    });
+
+    const entries = Object.entries(categoryData).map(([label, value]) => ({ label, value }));
+    entries.sort((a, b) => b.value - a.value);
+
+    if (entries.length === 0) {
+        if (status) {
+            status.style.display = 'block';
+            status.textContent = 'Nessun dato per il periodo selezionato.';
+        }
+        if (categoryChart) {
+            categoryChart.destroy();
+            categoryChart = null;
+        }
+        return;
+    } else if (status) {
+        status.style.display = 'none';
+    }
+
+    const ctx = document.getElementById('categoryChart').getContext('2d');
+    if (categoryChart) categoryChart.destroy();
+
+    categoryChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: entries.map(e => e.label),
+            datasets: [{
+                data: entries.map(e => e.value),
+                backgroundColor: [
+                    '#0284c7', '#16a34a', '#ea580c', '#dc2626',
+                    '#9333ea', '#ec4899', '#06b6d4', '#f59e0b'
+                ]
+            }]
+        },
+        options: { responsive: true, maintainAspectRatio: false }
+    });
+}
+
+
+        function updateSubcategoryChart(transactions) {
+    const status = document.getElementById('subcategoryChartStatus');
+
+    const subcategoryData = {};
+    transactions.filter(t => t.type === 'expense').forEach(t => {
+        const sub = appData.subcategories.find(s => s.id === t.subcategoryId);
+        const name = sub?.name || 'Altro';
+        subcategoryData[name] = (subcategoryData[name] || 0) + t.amount;
+    });
+
+    const entries = Object.entries(subcategoryData).map(([label, value]) => ({ label, value }));
+    entries.sort((a, b) => b.value - a.value);
+
+    if (entries.length === 0) {
+        if (status) {
+            status.style.display = 'block';
+            status.textContent = 'Nessun dato per il periodo selezionato.';
+        }
+        if (subcategoryChart) {
+            subcategoryChart.destroy();
+            subcategoryChart = null;
+        }
+        return;
+    } else if (status) {
+        status.style.display = 'none';
+    }
+
+    const ctx = document.getElementById('subcategoryChart').getContext('2d');
+    if (subcategoryChart) subcategoryChart.destroy();
+
+    subcategoryChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: entries.map(e => e.label),
+            datasets: [{
+                label: 'Importo (€)',
+                data: entries.map(e => e.value),
+                backgroundColor: '#0284c7'
+            }]
+        },
+        options: { responsive: true, maintainAspectRatio: false, indexAxis: 'y' }
+    });
+}
+
+
+       function updateMonthlyChart() {
+    const status = document.getElementById('monthlyChartStatus');
+
+    const monthlyData = {};
+    appData.transactions.filter(t => t.type === 'expense').forEach(t => {
+        const month = t.date.slice(0, 7);
+        monthlyData[month] = (monthlyData[month] || 0) + t.amount;
+    });
+
+    const labels = Object.keys(monthlyData).sort();
+    const values = labels.map(m => monthlyData[m]);
+
+    if (labels.length === 0) {
+        if (status) {
+            status.style.display = 'block';
+            status.textContent = 'Nessuna spesa registrata per costruire l’andamento mensile.';
+        }
+        if (monthlyChart) {
+            monthlyChart.destroy();
+            monthlyChart = null;
+        }
+        return;
+    } else if (status) {
+        status.style.display = 'none';
+    }
+
+    const ctx = document.getElementById('monthlyChart').getContext('2d');
+    if (monthlyChart) monthlyChart.destroy();
+
+    monthlyChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Spese Mensili (€)',
+                data: values,
+                borderColor: '#0284c7',
+                backgroundColor: 'rgba(2, 132, 199, 0.1)',
+                tension: 0.3
+            }]
+        },
+        options: { responsive: true, maintainAspectRatio: false }
+    });
+}
+
+
+       function updateUserChart(transactions) {
+    const status = document.getElementById('userChartStatus');
+
+    const userData = {};
+    transactions.filter(t => t.type === 'expense').forEach(t => {
+        const member = appData.members.find(m => m.id === t.memberId);
+        const name = member?.name || 'Altro';
+        userData[name] = (userData[name] || 0) + t.amount;
+    });
+
+    const entries = Object.entries(userData).map(([label, value]) => ({ label, value }));
+    entries.sort((a, b) => b.value - a.value);
+
+    if (entries.length === 0) {
+        if (status) {
+            status.style.display = 'block';
+            status.textContent = 'Nessuna spesa disponibile per confrontare gli utenti nel periodo selezionato.';
+        }
+        if (userChart) {
+            userChart.destroy();
+            userChart = null;
+        }
+        return;
+    } else if (status) {
+        status.style.display = 'none';
+    }
+
+    const ctx = document.getElementById('userChart').getContext('2d');
+    if (userChart) userChart.destroy();
+
+    userChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: entries.map(e => e.label),
+            datasets: [{
+                label: 'Spese (€)',
+                data: entries.map(e => e.value),
+                backgroundColor: '#dc2626'
+            }]
+        },
+        options: { responsive: true, maintainAspectRatio: false }
+    });
+}
+
+
+      function updateBudgetChart() {
+    const status = document.getElementById('budgetChartStatus');
+
+    const year = new Date().getFullYear().toString();
+    const expensesByMonth = {};
+    const budgetByMonth = {};
+
+    appData.transactions
+        .filter(t => t.type === 'expense' && t.date.startsWith(year))
+        .forEach(t => {
+            const month = t.date.slice(5, 7);
+            expensesByMonth[month] = (expensesByMonth[month] || 0) + t.amount;
+        });
+
+    appData.budgets.forEach(b => {
+        if (!b.monthly) return;
+        Object.entries(b.monthly).forEach(([month, val]) => {
+            budgetByMonth[month] = (budgetByMonth[month] || 0) + val;
+        });
+    });
+
+    const monthsOrder = ['01','02','03','04','05','06','07','08','09','10','11','12'];
+    const monthLabels = ['Gen','Feb','Mar','Apr','Mag','Giu','Lug','Ago','Set','Ott','Nov','Dic'];
+
+    const expData = [];
+    const budData = [];
+    let cumExp = 0;
+    let cumBud = 0;
+
+    let hasAnyData = false;
+
+    monthsOrder.forEach(m => {
+        const e = expensesByMonth[m] || 0;
+        const b = budgetByMonth[m] || 0;
+        cumExp += e;
+        cumBud += b;
+        expData.push(cumExp);
+        budData.push(cumBud);
+        if (e > 0 || b > 0) {
+            hasAnyData = true;
+        }
+    });
+
+    if (!hasAnyData) {
+        if (status) {
+            status.style.display = 'block';
+            status.textContent = 'Nessun dato di budget o spese per l’anno corrente.';
+        }
+        if (budgetChart) {
+            budgetChart.destroy();
+            budgetChart = null;
+        }
+        return;
+    } else if (status) {
+        status.style.display = 'none';
+    }
+
+    const ctx = document.getElementById('budgetChart').getContext('2d');
+    if (budgetChart) budgetChart.destroy();
+
+    budgetChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: monthLabels,
+            datasets: [
+                {
+                    label: 'Spese cumulate (€)',
+                    data: expData,
+                    borderColor: '#dc2626',
+                    backgroundColor: 'rgba(220,38,38,0.1)',
+                    tension: 0.3
+                },
+                {
+                    label: 'Budget cumulato (€)',
+                    data: budData,
+                    borderColor: '#16a34a',
+                    backgroundColor: 'rgba(22,163,74,0.1)',
+                    tension: 0.3
+                }
+            ]
+        },
+        options: { responsive: true, maintainAspectRatio: false }
+    });
+}
+
+        // ========== EXPORT ==========
+        function exportToCSV() {
+            const fromDate = document.getElementById('exportFromDate').value;
+            const toDate = document.getElementById('exportToDate').value;
+
+            const filtered = appData.transactions.filter(t => {
+                if (fromDate && t.date < fromDate) return false;
+                if (toDate && t.date > toDate) return false;
+                return true;
+            });
+
+            let csv = 'Data,Tipo,Categoria,Sottocategoria,Importo,Membro,Descrizione\n';
+            filtered.forEach(t => {
+                const cat = appData.categories.find(c => c.id === t.categoryId)?.name || 'N/A';
+                const subcat = appData.subcategories.find(s => s.id === t.subcategoryId)?.name || 'N/A';
+                const member = appData.members.find(m => m.id === t.memberId)?.name || 'N/A';
+                const type = t.type === 'income' ? 'Entrata' : 'Uscita';
+                csv += `"${t.date}","${type}","${cat}","${subcat}",${t.amount},"${member}","${t.description || ''}"\n`;
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `spese_familiari_${new Date().toISOString().slice(0, 10)}.csv`;
+            link.click();
+            showSuccess('CSV esportato con successo');
+        }
+
+        // ========== INITIALIZE ==========
+        window.addEventListener('load', () => {
+            initApp();
+        });
+
+        if (window.location.hash === '#add-expense') {
+            setTimeout(() => showTab('add-expense'), 500);
+        }
+    </script>
+<script>
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('service-worker.js').catch(err => {
+            console.log('SW registration failed', err);
+        });
+    });
+}
+</script>
+</body>
+</html>
