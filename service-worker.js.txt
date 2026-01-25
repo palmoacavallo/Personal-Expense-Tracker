@@ -3,10 +3,9 @@ const URLS_TO_CACHE = [
   './',
   './index.html',
   './manifest.webmanifest',
-  './service-worker.js',
   './icon-192.png',
-  './icon-512.png',
-  // aggiungi qui anche i tuoi file locali se li hai (CSS separati, ecc.)
+  './icon-512.png'
+  // aggiungi qui altri file statici se li hai (es. css, js separati)
 ];
 
 // Install: cache dei file base
@@ -29,8 +28,7 @@ self.addEventListener('activate', event => {
 
 // Fetch: offline-first per i file statici
 self.addEventListener('fetch', event => {
-  const req = event.request;
   event.respondWith(
-    caches.match(req).then(res => res || fetch(req))
+    caches.match(event.request).then(res => res || fetch(event.request))
   );
 });
