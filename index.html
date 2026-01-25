@@ -1015,7 +1015,7 @@ const childGoal = {
         function initApp() {
             loadDataFromStorage();
             initializeFamilyData();
-async function initApp() {
+function initApp() {
     loadDataFromStorage();
     initializeFamilyData();
     document.getElementById('expenseDate').valueAsDate = new Date();
@@ -2200,6 +2200,7 @@ function updateCategoryChart(transactions) {
         options: { responsive: true, maintainAspectRatio: false }
     });
 }
+		
 // ========== FIRESTORE SYNC ==========
 
 // ========== FIRESTORE SYNC MEMBERS ==========
@@ -2553,5 +2554,6 @@ if ('serviceWorker' in navigator) {
 </script>
 </body>
 </html>
+
 
 
