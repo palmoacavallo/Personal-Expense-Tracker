@@ -987,6 +987,35 @@ measurementId: "G-8QGJYMKHLM"
   window._firestoreDb = db;
   window._firestoreFns = { collection, doc, setDoc, getDocs, query, where };
 </script>
+	
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+  import {
+    getFirestore,
+    collection,
+    doc,
+    setDoc,
+    getDocs,
+    query,
+    where
+  } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "COPIA QUI",
+    authDomain: "COPIA QUI",
+    projectId: "COPIA QUI",
+    storageBucket: "COPIA QUI",
+    messagingSenderId: "COPIA QUI",
+    appId: "COPIA QUI"
+  };
+
+  const firebaseApp = initializeApp(firebaseConfig);
+  const db = getFirestore(firebaseApp);
+
+  // Espone su window per il resto del codice
+  window._firestoreDb = db;
+  window._firestoreFns = { collection, doc, setDoc, getDocs, query, where };
+</script>
 
     <!-- LIBRERIE -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
@@ -2562,6 +2591,7 @@ if ('serviceWorker' in navigator) {
 </script>
 </body>
 </html>
+
 
 
 
