@@ -979,18 +979,13 @@ messagingSenderId: "173458465932",
 appId: "1:173458465932:web:e4508730e12e47536887a9",
 measurementId: "G-8QGJYMKHLM"
 };
-
-import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-
-const firebaseConfig = { /* ... */ };
-
-const firebaseApp = getApps().length
-  ? getApp()
-  : initializeApp(firebaseConfig);
+// Evita il duplicate-app
+  const firebaseApp = getApps().length
+    ? getApp()
+    : initializeApp(firebaseConfig);
 
   const db = getFirestore(firebaseApp);
 
-  // Esporta su window per il resto del codice
   window._firestoreDb = db;
   window._firestoreFns = { collection, doc, setDoc, getDocs, query, where };
 </script>
@@ -2251,7 +2246,7 @@ function updateCategoryChart(transactions) {
 
 async function syncMembersUp() {
     const db = window._firestoreDb;
-    const { collection, doc, setDoc } = window._firestoreFns;
+    const { collection, doc, setDoc, getDocs, query, where } = window._firestoreFns;
     if (!db) return;
 
     const collRef = collection(db, 'families', currentFamilyId, 'members');
@@ -2598,6 +2593,7 @@ if ('serviceWorker' in navigator) {
 </script>
 </body>
 </html>
+
 
 
 
