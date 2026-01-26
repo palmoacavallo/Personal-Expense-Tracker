@@ -957,9 +957,8 @@
             </form>
         </div>
     </div>
-
-
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+<script type="module">
+  import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
   import {
     getFirestore,
     collection,
@@ -971,21 +970,21 @@
   } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
   const firebaseConfig = {
-apiKey: "AIzaSyCSrEZONfxNTB8XGFlUTE2wL7-Q4ZWgVmk",
-authDomain: "trackingapp-5ae4a.firebaseapp.com",
-projectId: "trackingapp-5ae4a",
-storageBucket: "trackingapp-5ae4a.firebasestorage.app",
-messagingSenderId: "173458465932",
-appId: "1:173458465932:web:e4508730e12e47536887a9",
-measurementId: "G-8QGJYMKHLM"
-};
-// Evita il duplicate-app
-  const firebaseApp = getApps().length
-    ? getApp()
-    : initializeApp(firebaseConfig);
+    apiKey: "AIzaSyCSrEZONfxNTB8XGFlUTE2wL7-Q4ZWgVmk",
+    authDomain: "trackingapp-5ae4a.firebaseapp.com",
+    projectId: "trackingapp-5ae4a",
+    storageBucket: "trackingapp-5ae4a.appspot.com", // verifica questo valore nella console Firebase
+    messagingSenderId: "173458465932",
+    appId: "1:173458465932:web:e4508730e12e47536887a9",
+    measurementId: "G-8QGJYMKHLM"
+  };
+
+  // Evita il duplicate-app
+  const firebaseApp = getApps().length ? getApp() : initializeApp(firebaseConfig);
 
   const db = getFirestore(firebaseApp);
 
+  // Esporta su window se il resto dell'app si aspetta queste variabili globali
   window._firestoreDb = db;
   window._firestoreFns = { collection, doc, setDoc, getDocs, query, where };
 </script>
@@ -2563,6 +2562,7 @@ if ('serviceWorker' in navigator) {
 </script>
 </body>
 </html>
+
 
 
 
