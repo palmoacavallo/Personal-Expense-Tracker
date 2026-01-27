@@ -958,7 +958,7 @@
         </div>
     </div>
 <script type="module">
-  import { getApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+  import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
   import {
     getFirestore,
     collection,
@@ -969,19 +969,24 @@
     where
   } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-  // usa l'app già esistente (ignora l'errore duplicate di estensioni esterne)
-  const app = getApp();  
+  const firebaseConfig = {
+    apiKey: "AIzaSyCSrEZONfxNTB8XGFlUTE2wL7-Q4ZWgVmk",
+    authDomain: "trackingapp-5ae4a.firebaseapp.com",
+    projectId: "trackingapp-5ae4a",
+    storageBucket: "trackingapp-5ae4a.firebasestorage.app",
+    messagingSenderId: "173458465932",
+    appId: "1:173458465932:web:e4508730e12e47536887a9",
+    measurementId: "G-8QGJYMKHLM"
+  };
+
+  // inizializza solo se non esiste già
+  const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
   const db = getFirestore(app);
 
-  // esponi Firestore al resto del codice
+  // esponi Firestore al resto del codice (script NON module)
   window.firestoreDb = db;
   window.firestoreFns = { collection, doc, setDoc, getDocs, query, where };
 </script>
-    <!-- LIBRERIE -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
-<script type="text/javascript" src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
-
-    <script>
         // ========== DATA MANAGEMENT ==========
         let appData = {
             families: [],
@@ -2569,6 +2574,7 @@ if ('serviceWorker' in navigator) {
 </script>
 </body>
 </html>
+
 
 
 
