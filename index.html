@@ -2497,6 +2497,34 @@ async function syncWithCloud() {
   const { collection, doc, setDoc, getDocs } = window.firestoreFns;
 
   try {
+    // salva tutto l'appData in una doc per la famiglia corrente
+    const familyRef = doc(collection(window.firestoreDb, "families"), currentFamilyId);
+
+    await setDoc(
+      familyRef,
+      {
+        appData,
+        updatedAt: new Date().toISOString()
+      },
+      { merge: true }
+    );
+
+    // lettura di prova per verificare connessione
+    const snap = await getDocs(collection(window.firestoreDb, "families"));
+    console.log("Sync completata, famiglie trovate:", snap.size);
+
+    lastSyncAt = new Date().toISOString();
+    localStorage.setItem("familylastSyncAt", lastSyncAt);
+    showSuccess("Sincronizzazione completata con successo.");
+  } catch (err) {
+    console.error("Errore sincronizzazione Firestore:", err);
+    alert("Errore durante la sincronizzazione: " + (err.message || err));
+  }
+}
+
+  const { collection, doc, setDoc, getDocs } = window.firestoreFns;
+
+  try {
     // esempio: salviamo tutto l'oggetto appData in una singola doc della famiglia
     const familyRef = doc(collection(window.firestoreDb, "families"), currentFamilyId);
 
@@ -2535,6 +2563,7 @@ if ('serviceWorker' in navigator) {
 </script>
 </body>
 </html>
+
 
 
 
