@@ -958,7 +958,7 @@
         </div>
     </div>
 <script type="module">
-  import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+  import { getApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
   import {
     getFirestore,
     collection,
@@ -969,18 +969,8 @@
     where
   } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyCSrEZONfxNTB8XGFlUTE2wL7-Q4ZWgVmk",
-    authDomain: "trackingapp-5ae4a.firebaseapp.com",
-    projectId: "trackingapp-5ae4a",
-    storageBucket: "trackingapp-5ae4a.firebasestorage.app",
-    messagingSenderId: "173458465932",
-    appId: "1:173458465932:web:e4508730e12e47536887a9",
-    measurementId: "G-8QGJYMKHLM"
-  };
-
-  // evita errore "Firebase App named '[DEFAULT]' already exists"
-  const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+  // usa l'app già esistente (ignora l'errore duplicate di estensioni esterne)
+  const app = getApp();  
   const db = getFirestore(app);
 
   // esponi Firestore al resto del codice
@@ -2579,6 +2569,7 @@ if ('serviceWorker' in navigator) {
 </script>
 </body>
 </html>
+
 
 
 
