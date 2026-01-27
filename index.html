@@ -1036,18 +1036,6 @@ function initApp() {
         syncWithCloud();
     }
 }
-            document.getElementById('expenseDate').valueAsDate = new Date();
-            document.getElementById('incomeDate').valueAsDate = new Date();
-            document.getElementById('analyticsMonth').valueAsDate = new Date();
-            document.getElementById('exportFromDate').valueAsDate = new Date();
-            document.getElementById('exportToDate').valueAsDate = new Date();
-            renderCategories();
-	updateCategoryOptions();
-            populateAnalyticsCategories();
-            renderBudgetManagement();
-            updateDashboard();
-            setupTabNavigation();
-        }
 
         function loadDataFromStorage() {
             const stored = localStorage.getItem('expenseTrackerData');
@@ -2563,6 +2551,7 @@ if ('serviceWorker' in navigator) {
 </script>
 </body>
 </html>
+
 
 
 
