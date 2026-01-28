@@ -987,6 +987,7 @@
   window.firestoreDb = db;
   window.firestoreFns = { collection, doc, setDoc, getDocs, query, where };
 </script>
+	<script>
         // ========== DATA MANAGEMENT ==========
         let appData = {
             families: [],
@@ -1036,31 +1037,15 @@ async function syncWithCloud() {
     alert("Firestore non inizializzato correttamente.");
     return;
   }
+initApp();
+        });
 
-  const { collection, doc, setDoc, getDocs } = window.firestoreFns;
-
-  try {
-    const familyRef = doc(collection(window.firestoreDb, "families"), currentFamilyId);
-
-    await setDoc(
-      familyRef,
-      { appData, updatedAt: new Date().toISOString() },
-      { merge: true }
-    );
-
-    const snap = await getDocs(collection(window.firestoreDb, "families"));
-    console.log("Sync completata, famiglie trovate:", snap.size);
-
-    lastSyncAt = new Date().toISOString();
-    localStorage.setItem("family_lastSyncAt", lastSyncAt);
-    showSuccess("Sincronizzazione completata con successo.");
-  } catch (err) {
-    console.error("Errore sincronizzazione Firestore:", err);
-    alert("Errore durante la sincronizzazione: " + (err.message || err));
-  }
-}
-
-        function loadDataFromStorage() {
+        if (window.location.hash === '#add-expense') {
+            setTimeout(() => showTab('add-expense'), 500);
+        }
+    </script>
+<script>
+	function loadDataFromStorage() {
             const stored = localStorage.getItem('expenseTrackerData');
             if (stored) {
                 appData = JSON.parse(stored);
@@ -2219,7 +2204,7 @@ function updateCategoryChart(transactions) {
 // ========== FIRESTORE SYNC MEMBERS ==========
 
 async function syncMembersUp() {
-    const db = window._firestoreDb;
+    const db = window.firestoreDb;
     const { collection, doc, setDoc, getDocs, query, where } = window._firestoreFns;
     if (!db) return;
 
@@ -2237,7 +2222,7 @@ async function syncMembersUp() {
 }
 
 async function syncMembersDown() {
-    const db = window._firestoreDb;
+    const db = window.firestoreDb;
     const { collection, getDocs, query, where } = window._firestoreFns;
     if (!db) return;
 
@@ -2278,7 +2263,7 @@ async function syncMembersDown() {
 // ========== FIRESTORE SYNC CATEGORIES & SUBCATEGORIES ==========
 
 async function syncCategoriesUp() {
-    const db = window._firestoreDb;
+    const db = window.firestoreDb;
     const { collection, doc, setDoc } = window._firestoreFns;
     if (!db) return;
 
@@ -2307,7 +2292,7 @@ async function syncCategoriesUp() {
 }
 
 async function syncCategoriesDown() {
-    const db = window._firestoreDb;
+    const db = window.firestoreDb;
     const { collection, getDocs, query, where } = window._firestoreFns;
     if (!db) return;
 
@@ -2376,7 +2361,7 @@ async function syncCategoriesDown() {
 // ========== FIRESTORE SYNC BUDGETS ==========
 
 async function syncBudgetsUp() {
-    const db = window._firestoreDb;
+    const db = window.firestoreDb;
     const { collection, doc, setDoc } = window._firestoreFns;
     if (!db) return;
 
@@ -2394,7 +2379,7 @@ async function syncBudgetsUp() {
 }
 
 async function syncBudgetsDown() {
-    const db = window._firestoreDb;
+    const db = window.firestoreDb;
     const { collection, getDocs, query, where } = window._firestoreFns;
     if (!db) return;
 
@@ -2436,7 +2421,7 @@ async function syncBudgetsDown() {
 // ========== FIRESTORE SYNC TRANSACTIONS ==========
 
 async function syncTransactionsUp() {
-    const db = window._firestoreDb;
+    const db = window.firestoreDb;
     const { collection, doc, setDoc } = window._firestoreFns;
     if (!db) return;
 
@@ -2457,7 +2442,7 @@ async function syncTransactionsUp() {
 }
 
 async function syncTransactionsDown() {
-    const db = window._firestoreDb;
+    const db = window.firestoreDb;
     const { collection, getDocs, query, where } = window._firestoreFns;
     if (!db) return;
 
@@ -2525,14 +2510,14 @@ async function syncWithCloud() {
     console.log("Sync completata, famiglie trovate:", snap.size);
 
     lastSyncAt = new Date().toISOString();
-    localStorage.setItem("familylastSyncAt", lastSyncAt);
+    localStorage.setItem("family_lastSyncAt", lastSyncAt);
     showSuccess("Sincronizzazione completata con successo.");
   } catch (err) {
     console.error("Errore sincronizzazione Firestore:", err);
     alert("Errore durante la sincronizzazione: " + (err.message || err));
   }
 }
-
+				
   const { collection, doc, setDoc, getDocs } = window.firestoreFns;
 
   try {
@@ -2574,23 +2559,3 @@ if ('serviceWorker' in navigator) {
 </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
