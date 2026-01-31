@@ -7,6 +7,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Family Expense">
 <link rel="apple-touch-icon" href="icon-192.png">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sheetjs@0.20.1/xlsx.full.min.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Family Expense Tracker - Traccia le Tue Spese</title>
@@ -498,34 +500,6 @@
             border-top-color: var(--color-primary);
             animation: spin 1s ease-in-out infinite;
         }
-	@media (max-width: 768px) {
-    .form-row {
-        grid-template-columns: 1fr;
-        gap: 10px;
-    }
-
-    .btn-block {
-        font-size: 1rem;
-        padding: 14px 20px;
-    }
-
-    input[type="number"],
-    input[type="date"],
-    select,
-    textarea {
-        font-size: 1rem;
-    }
-
-    /* card più compatte su mobile */
-    .card {
-        padding: 18px;
-    }
-
-    /* dashboard: numeri ancora ben visibili ma non enormi */
-    .stat-box .value {
-        font-size: 1.6rem;
-    }
-}
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
@@ -633,12 +607,6 @@
                 </a>
             </div>
         </div>
-<div class="card">
-    <h2>Insight sul mese corrente</h2>
-    <div id="insightsBox" class="alert alert-info">
-        Nessun dato sufficiente per generare insight. Aggiungi qualche transazione.
-    </div>
-</div>
 
         <!-- ADD EXPENSE TAB -->
         <div id="add-expense" class="tab-content">
@@ -817,6 +785,7 @@
 
             <div class="card">
                 <h2>Spese per Categoria</h2>
+                <div id="categoryChartStatus" class="alert alert-info" style="display:none;"></div>
                 <div class="chart-container">
                     <canvas id="categoryChart"></canvas>
                 </div>
@@ -824,6 +793,7 @@
 
             <div class="card">
                 <h2>Spese per Sottocategoria</h2>
+                <div id="subcategoryChartStatus" class="alert alert-info" style="display:none;"></div>
                 <div class="chart-container">
                     <canvas id="subcategoryChart"></canvas>
                 </div>
@@ -831,6 +801,7 @@
 
             <div class="card">
                 <h2>Andamento Mensile Spese</h2>
+                <div id="monthlyChartStatus" class="alert alert-info" style="display:none;"></div>
                 <div class="chart-container">
                     <canvas id="monthlyChart"></canvas>
                 </div>
@@ -838,6 +809,7 @@
 
             <div class="card">
                 <h2>Spese per Utente (mese selezionato)</h2>
+                <div id="userChartStatus" class="alert alert-info" style="display:none;"></div>
                 <div class="chart-container">
                     <canvas id="userChart"></canvas>
                 </div>
@@ -845,46 +817,12 @@
 
             <div class="card">
                 <h2>Budget vs Spese (cumulato annuale)</h2>
+                <div id="budgetChartStatus" class="alert alert-info" style="display:none;"></div>
                 <div class="chart-container">
                     <canvas id="budgetChart"></canvas>
                 </div>
             </div>
         </div>
-<div class="card">
-    <h2>Spese per Categoria</h2>
-    <div id="categoryChartStatus" class="alert alert-info">Caricamento grafico...</div>
-    <div class="chart-container">
-        <canvas id="categoryChart"></canvas>
-    </div>
-</div>
-<div class="card">
-    <h2>Spese per Sottocategoria</h2>
-    <div id="subcategoryChartStatus" class="alert alert-info">Caricamento grafico...</div>
-    <div class="chart-container">
-        <canvas id="subcategoryChart"></canvas>
-    </div>
-</div>
-<div class="card">
-    <h2>Andamento Mensile Spese</h2>
-    <div id="monthlyChartStatus" class="alert alert-info">Caricamento grafico...</div>
-    <div class="chart-container">
-        <canvas id="monthlyChart"></canvas>
-    </div>
-</div>
-<div class="card">
-    <h2>Spese per Utente (mese selezionato)</h2>
-    <div id="userChartStatus" class="alert alert-info">Caricamento grafico...</div>
-    <div class="chart-container">
-        <canvas id="userChart"></canvas>
-    </div>
-</div>
-<div class="card">
-    <h2>Budget vs Spese (cumulato annuale)</h2>
-    <div id="budgetChartStatus" class="alert alert-info">Caricamento grafico...</div>
-    <div class="chart-container">
-        <canvas id="budgetChart"></canvas>
-    </div>
-</div>
 
         <!-- EXPORT TAB -->
         <div id="export" class="tab-content">
@@ -1032,20 +970,9 @@ function initApp() {
         syncWithCloud();
     }
 }
-async function syncWithCloud() {
-  if (!window.firestoreDb || !window.firestoreFns) {
-    alert("Firestore non inizializzato correttamente.");
-    return;
-  }
-initApp();
-        };
-
-        if (window.location.hash === '#add-expense') {
-            setTimeout(() => showTab('add-expense'), 500);
-        }
-    </script>
+</script>
 <script>
-	function loadDataFromStorage() {
+        function loadDataFromStorage() {
             const stored = localStorage.getItem('expenseTrackerData');
             if (stored) {
                 appData = JSON.parse(stored);
@@ -2038,7 +1965,7 @@ function updateCategoryChart(transactions) {
     if (labels.length === 0) {
         if (status) {
             status.style.display = 'block';
-            status.textContent = 'Nessuna spesa registrata per costruire l’andamento mensile.';
+            status.textContent = 'Nessuna spesa registrata per costruire l\'andamento mensile.';
         }
         if (monthlyChart) {
             monthlyChart.destroy();
@@ -2160,7 +2087,7 @@ function updateCategoryChart(transactions) {
     if (!hasAnyData) {
         if (status) {
             status.style.display = 'block';
-            status.textContent = 'Nessun dato di budget o spese per l’anno corrente.';
+            status.textContent = 'Nessun dato di budget o spese per l\'anno corrente.';
         }
         if (budgetChart) {
             budgetChart.destroy();
@@ -2486,38 +2413,43 @@ async function syncTransactionsDown() {
 // funzione comoda per avviare una sync completa
 async function syncWithCloud() {
   if (!window.firestoreDb || !window.firestoreFns) {
-    alert("Firestore non inizializzato correttamente.");
+    console.warn("Firestore non ancora inizializzato — sync ignorata.");
     return;
   }
 
-  const { collection, doc, setDoc, getDocs } = window.firestoreFns;
-
   try {
-    // salva tutto l'appData in una doc per la famiglia corrente
-    const familyRef = doc(collection(window.firestoreDb, "families"), currentFamilyId);
+    // 1) Upload locale → cloud
+    await syncMembersUp();
+    await syncCategoriesUp();
+    await syncBudgetsUp();
+    await syncTransactionsUp();
 
-    await setDoc(
-      familyRef,
-      {
-        appData,
-        updatedAt: new Date().toISOString()
-      },
-      { merge: true }
-    );
+    // 2) Download cloud → locale
+    await syncMembersDown();
+    await syncCategoriesDown();
+    await syncBudgetsDown();
+    await syncTransactionsDown();
 
-    // lettura di prova per verificare connessione
-    const snap = await getDocs(collection(window.firestoreDb, "families"));
-    console.log("Sync completata, famiglie trovate:", snap.size);
-
+    // 3) Aggiorna timestamp e UI
     lastSyncAt = new Date().toISOString();
     localStorage.setItem("family_lastSyncAt", lastSyncAt);
+
+    saveDataToStorage();
+    updateDashboard();
+    renderCategories();
+    updateCategoryOptions();
+    renderBudgetManagement();
+
     showSuccess("Sincronizzazione completata con successo.");
   } catch (err) {
     console.error("Errore sincronizzazione Firestore:", err);
-    alert("Errore durante la sincronizzazione: " + (err.message || err));
+    showSuccess("Errore durante la sincronizzazione: " + (err.message || err));
   }
 }
 	
+        // Avvia l'applicazione
+        initApp();
+
         if (window.location.hash === '#add-expense') {
             setTimeout(() => showTab('add-expense'), 500);
         }
