@@ -896,7 +896,7 @@
         </div>
     </div>
 <script type="module">
-  import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+  import { initializeApp, getApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
   import {
     getFirestore,
     collection,
@@ -917,15 +917,30 @@
     measurementId: "G-8QGJYMKHLM"
   };
 
-  // inizializza solo se non esiste già
-  const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+  const APP_NAME = 'trackingapp';
+  let app;
+  try {
+    app = getApp(APP_NAME);
+  } catch (e) {
+    app = initializeApp(firebaseConfig, APP_NAME);
+  }
   const db = getFirestore(app);
 
   // esponi Firestore al resto del codice (script NON module)
   window.firestoreDb = db;
   window.firestoreFns = { collection, doc, setDoc, getDocs, query, where };
+
+  // segnala agli altri script che Firebase è pronto
+  if (window._firebaseReadyResolve) {
+    window._firebaseReadyResolve();
+  }
 </script>
 	<script>
+        // Promise che si risolve quando il modulo Firebase ha finito di inizializzare
+        window.firebaseReady = new Promise(resolve => {
+            window._firebaseReadyResolve = resolve;
+        });
+
         // ========== DATA MANAGEMENT ==========
         let appData = {
             families: [],
@@ -965,9 +980,11 @@ function initApp() {
     updateDashboard();
     setupTabNavigation();
 
-    // prova sync se online
+    // sync solo dopo che Firebase è inizializzato
     if (navigator.onLine) {
-        syncWithCloud();
+        window.firebaseReady.then(() => {
+            syncWithCloud();
+        });
     }
 }
 </script>
@@ -2412,8 +2429,11 @@ async function syncTransactionsDown() {
 
 // funzione comoda per avviare una sync completa
 async function syncWithCloud() {
+  // attendi che Firebase sia pronto (noop se lo è già)
+  await window.firebaseReady;
+
   if (!window.firestoreDb || !window.firestoreFns) {
-    console.warn("Firestore non ancora inizializzato — sync ignorata.");
+    console.error("Firestore ancora non disponibile dopo firebaseReady.");
     return;
   }
 
